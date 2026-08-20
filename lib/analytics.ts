@@ -27,6 +27,7 @@
 
 type EventName =
   | "marketing_cta_click"
+  | "marketing_start_cta_click"
   | "signup"
   | "onboarding_complete"
   | "chapter_start"
