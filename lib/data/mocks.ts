@@ -9,260 +9,68 @@ const review = {
   lastReviewed: "2026-06-07",
 } as const
 
-const BASE_MOCKS: MockTest[] = [
-  {
-    id: "mock-tcs-nqt-core",
-    companyId: "tcs",
-    title: "TCS NQT Core Mock",
-    description: "Numerical, verbal, reasoning and programming-logic mix for NQT readiness.",
-    cutoffPercent: 70,
-    sourceId: "tcs-nqt-official",
-    sections: [
-      { id: "quant", label: "Numerical Ability", questionCount: 5, durationMinutes: 7, source: "mixed" },
-      { id: "reasoning", label: "Reasoning Ability", questionCount: 5, durationMinutes: 7, source: "mixed" },
-      { id: "verbal", label: "Verbal Ability", questionCount: 4, durationMinutes: 5, source: "mixed" },
-      { id: "coding", label: "Programming Logic", questionCount: 4, durationMinutes: 6, source: "mixed" },
-    ],
-    ...review,
-  },
-  {
-    id: "mock-infosys-pseudocode-core",
-    companyId: "infosys",
-    title: "Infosys Aptitude + Pseudocode Mock",
-    description: "A compact assessment covering aptitude, reasoning, verbal and pseudocode-style logic.",
-    cutoffPercent: 70,
-    sourceId: "infosys-careers",
-    sections: [
-      { id: "quant", label: "Quantitative Aptitude", questionCount: 5, durationMinutes: 7, source: "mixed" },
-      { id: "reasoning", label: "Logical Reasoning", questionCount: 5, durationMinutes: 7, source: "mixed" },
-      { id: "verbal", label: "Verbal Ability", questionCount: 4, durationMinutes: 5, source: "mixed" },
-      { id: "coding", label: "Pseudocode", questionCount: 4, durationMinutes: 6, source: "mixed" },
-    ],
-    ...review,
-  },
-  {
-    id: "mock-wipro-elite-core",
-    companyId: "wipro",
-    title: "Wipro Elite Core Mock",
-    description: "Aptitude, verbal and coding readiness with written-communication emphasis handled in practice.",
-    cutoffPercent: 68,
-    sourceId: "wipro-careers",
-    sections: [
-      { id: "quant", label: "Quantitative Aptitude", questionCount: 5, durationMinutes: 7, source: "mixed" },
-      { id: "reasoning", label: "Logical Ability", questionCount: 4, durationMinutes: 6, source: "mixed" },
-      { id: "verbal", label: "Verbal Ability", questionCount: 5, durationMinutes: 6, source: "mixed" },
-      { id: "coding", label: "Coding MCQ", questionCount: 4, durationMinutes: 6, source: "mixed" },
-    ],
-    ...review,
-  },
-  {
-    id: "mock-accenture-cognitive-core",
-    companyId: "accenture",
-    title: "Accenture Cognitive + Technical Mock",
-    description: "Cognitive and technical MCQ practice aligned to a consulting/technology fresher track.",
-    cutoffPercent: 68,
-    sourceId: "accenture-careers",
-    sections: [
-      { id: "quant", label: "Numerical Ability", questionCount: 4, durationMinutes: 6, source: "mixed" },
-      { id: "reasoning", label: "Logical Ability", questionCount: 4, durationMinutes: 6, source: "mixed" },
-      { id: "verbal", label: "Verbal Ability", questionCount: 4, durationMinutes: 5, source: "mixed" },
-      { id: "cs-core", label: "Technical MCQ", questionCount: 6, durationMinutes: 8, source: "mixed" },
-    ],
-    ...review,
-  },
-  {
-    id: "mock-cognizant-genc-core",
-    companyId: "cognizant",
-    title: "Cognizant GenC Core Mock",
-    description: "Aptitude, communication-adjacent verbal and technical basics for GenC-style preparation.",
-    cutoffPercent: 68,
-    sourceId: "cognizant-careers",
-    sections: [
-      { id: "quant", label: "Quantitative Aptitude", questionCount: 5, durationMinutes: 7, source: "mixed" },
-      { id: "reasoning", label: "Logical Ability", questionCount: 4, durationMinutes: 6, source: "mixed" },
-      { id: "verbal", label: "Verbal Ability", questionCount: 5, durationMinutes: 6, source: "mixed" },
-      { id: "cs-core", label: "Technical Basics", questionCount: 4, durationMinutes: 6, source: "mixed" },
-    ],
-    ...review,
-  },
-  {
-    id: "mock-capgemini-pseudocode-core",
-    companyId: "capgemini",
-    title: "Capgemini Pseudocode + Aptitude Mock",
-    description: "Numerical, reasoning and verbal aptitude with pseudocode-style logic practice.",
-    cutoffPercent: 68,
-    sourceId: "capgemini-careers",
-    sections: [
-      { id: "quant", label: "Numerical Ability", questionCount: 5, durationMinutes: 7, source: "mixed" },
-      { id: "reasoning", label: "Logical Ability", questionCount: 5, durationMinutes: 7, source: "mixed" },
-      { id: "verbal", label: "Verbal / Written English", questionCount: 4, durationMinutes: 5, source: "mixed" },
-      { id: "coding", label: "Pseudocode", questionCount: 4, durationMinutes: 6, source: "mixed" },
-    ],
-    ...review,
-  },
-  {
-    id: "mock-epam-programming-core",
-    companyId: "epam",
-    title: "EPAM Programming Fundamentals Mock",
-    description: "Programming-fundamentals heavy mix - logic, coding and CS-core basics.",
-    cutoffPercent: 70,
-    sourceId: "epam-careers",
-    sections: [
-      { id: "coding", label: "Programming Logic", questionCount: 6, durationMinutes: 9, source: "mixed" },
-      { id: "cs-core", label: "CS Fundamentals", questionCount: 5, durationMinutes: 7, source: "mixed" },
-      { id: "reasoning", label: "Logical Reasoning", questionCount: 4, durationMinutes: 6, source: "mixed" },
-    ],
-    ...review,
-  },
-  {
-    id: "mock-ibm-aptitude-core",
-    companyId: "ibm",
-    title: "IBM Aptitude + Problem Solving Mock",
-    description: "Quantitative, logical and verbal aptitude with a problem-solving section.",
-    cutoffPercent: 68,
-    sourceId: "ibm-careers",
-    sections: [
-      { id: "quant", label: "Quantitative Aptitude", questionCount: 5, durationMinutes: 7, source: "mixed" },
-      { id: "reasoning", label: "Logical Reasoning", questionCount: 5, durationMinutes: 7, source: "mixed" },
-      { id: "verbal", label: "Verbal Ability", questionCount: 4, durationMinutes: 5, source: "mixed" },
-      { id: "coding", label: "Problem Solving", questionCount: 4, durationMinutes: 6, source: "mixed" },
-    ],
-    ...review,
-  },
-  {
-    id: "mock-unisys-core",
-    companyId: "unisys",
-    title: "Unisys Aptitude + Technical Mock",
-    description: "Aptitude and technical-fundamentals MCQ practice for a standard service-company drive.",
-    cutoffPercent: 65,
-    sourceId: "unisys-careers",
-    sections: [
-      { id: "quant", label: "Quantitative Aptitude", questionCount: 5, durationMinutes: 7, source: "mixed" },
-      { id: "reasoning", label: "Logical Ability", questionCount: 4, durationMinutes: 6, source: "mixed" },
-      { id: "verbal", label: "Verbal Ability", questionCount: 4, durationMinutes: 5, source: "mixed" },
-      { id: "cs-core", label: "Technical Basics", questionCount: 4, durationMinutes: 6, source: "mixed" },
-    ],
-    ...review,
-  },
-  {
-    id: "mock-techmahindra-core",
-    companyId: "techmahindra",
-    title: "Tech Mahindra Aptitude + Technical Mock",
-    description: "Aptitude and technical-basics MCQ practice for a telecom/IT-services drive.",
-    cutoffPercent: 65,
-    sourceId: "techmahindra-careers",
-    sections: [
-      { id: "quant", label: "Quantitative Aptitude", questionCount: 5, durationMinutes: 7, source: "mixed" },
-      { id: "reasoning", label: "Logical Ability", questionCount: 4, durationMinutes: 6, source: "mixed" },
-      { id: "verbal", label: "Verbal Ability", questionCount: 4, durationMinutes: 5, source: "mixed" },
-      { id: "cs-core", label: "Technical Basics", questionCount: 4, durationMinutes: 6, source: "mixed" },
-    ],
-    ...review,
-  },
-  {
-    id: "mock-hcltech-core",
-    companyId: "hcltech",
-    title: "HCLTech Aptitude + Technical Mock",
-    description: "Aptitude and technical-fundamentals MCQ practice for a standard service-company drive.",
-    cutoffPercent: 65,
-    sourceId: "hcltech-careers",
-    sections: [
-      { id: "quant", label: "Quantitative Aptitude", questionCount: 5, durationMinutes: 7, source: "mixed" },
-      { id: "reasoning", label: "Logical Ability", questionCount: 4, durationMinutes: 6, source: "mixed" },
-      { id: "verbal", label: "Verbal Ability", questionCount: 4, durationMinutes: 5, source: "mixed" },
-      { id: "cs-core", label: "Technical Basics", questionCount: 4, durationMinutes: 6, source: "mixed" },
-    ],
-    ...review,
-  },
-  {
-    id: "mock-zoho-coding-core",
-    companyId: "zoho",
-    title: "Zoho Coding Logic Mock",
-    description: "Programming-heavy MCQ simulation focused on arrays, strings, loops, debugging and matrix logic.",
-    cutoffPercent: 75,
-    sourceId: "zoho-careers",
-    sections: [
-      { id: "coding", label: "Programming Logic", questionCount: 10, durationMinutes: 15, source: "mixed" },
-      { id: "cs-core", label: "Complexity + Fundamentals", questionCount: 4, durationMinutes: 6, source: "mixed" },
-    ],
-    ...review,
-  },
-  {
-    id: "mock-general-diagnostic",
-    companyId: "general",
-    title: "Core Prep Diagnostic",
-    description: "Broad diagnostic across aptitude, reasoning, verbal, coding and CS fundamentals.",
-    cutoffPercent: 65,
-    sourceId: "studybench-curriculum",
-    sections: [
-      { id: "quant", label: "Quantitative", questionCount: 4, durationMinutes: 6, source: "mixed" },
-      { id: "reasoning", label: "Reasoning", questionCount: 4, durationMinutes: 6, source: "mixed" },
-      { id: "verbal", label: "Verbal", questionCount: 4, durationMinutes: 5, source: "mixed" },
-      { id: "coding", label: "Coding Logic", questionCount: 4, durationMinutes: 6, source: "mixed" },
-      { id: "cs-core", label: "CS Core", questionCount: 4, durationMinutes: 6, source: "mixed" },
-    ],
-    ...review,
-  },
-]
+
 
 /**
- * Full-length placement-simulation mocks. Each paper holds 90 questions whose
- * section split mirrors the company's real assessment model (verified from the
- * recruiter's official assessment pattern), with a difficulty target of
- * 10 easy / 40 medium / 40 hard. Answers come from computed generators and
- * reviewed PYQs, so every question is correct by construction.
+ * Company-pattern placement simulations. Public recruiter patterns change by
+ * drive, role and campus, so these mocks model the stable public structure
+ * instead of forcing every company into the same 90-question paper.
  */
-const SIMULATION_MIX = { easy: 10, medium: 40, hard: 40 } as const
+function patternMix(total: number): { easy: number; medium: number; hard: number } {
+  const easy = Math.max(8, Math.round(total * 0.12))
+  const hard = Math.round(total * 0.44)
+  return { easy, medium: total - easy - hard, hard }
+}
 
 const SIMULATION_BASES: MockTest[] = [
   {
     id: "sim-tcs-nqt",
     companyId: "tcs",
-    title: "TCS NQT Full Simulation (90Q)",
+    title: "TCS NQT Full Simulation (82Q)",
     description:
-      "Full-length TCS NQT simulation mirroring the real Foundation + Advanced split (Numerical 20, Reasoning 20, Verbal 25). The actual NQT runs ~82 aptitude questions plus 2 hands-on coding problems, is section-locked and has no negative marking; this MCQ paper simulates the aptitude + programming-logic portion on a 10 easy / 40 medium / 40 hard curve.",
+      "TCS NQT simulation aligned to the public Foundation + Advanced structure: numerical, reasoning, verbal, advanced aptitude and programming logic. The official NQT is a 190-minute integrated test with hands-on coding; this browser mock covers the 82-question aptitude/programming-logic layer and keeps coding practice separate.",
     cutoffPercent: 70,
     sourceId: "tcs-nqt-official",
-    difficultyMix: SIMULATION_MIX,
+    difficultyMix: patternMix(82),
     sections: [
       { id: "quant", label: "Numerical Ability", questionCount: 20, durationMinutes: 25, source: "mixed" },
       { id: "reasoning", label: "Reasoning Ability", questionCount: 20, durationMinutes: 25, source: "mixed" },
       { id: "verbal", label: "Verbal Ability", questionCount: 25, durationMinutes: 25, source: "mixed" },
-      { id: "coding", label: "Programming Logic", questionCount: 25, durationMinutes: 30, source: "mixed" },
+      { id: "quant", label: "Advanced Quantitative Ability", questionCount: 10, durationMinutes: 20, source: "mixed" },
+      { id: "coding", label: "Programming Logic", questionCount: 7, durationMinutes: 15, source: "mixed" },
     ],
     ...review,
   },
   {
     id: "sim-infosys",
     companyId: "infosys",
-    title: "Infosys Full Simulation (90Q)",
+    title: "Infosys Full Simulation (54Q)",
     description:
-      "Full-length Infosys assessment simulation reflecting its verbal-heavy split with a small but time-generous quant and a pseudocode round (the real test runs ~54 questions across ~100 minutes, no negative marking, and varies by drive). Tuned to 10 easy / 40 medium / 40 hard.",
+      "Infosys simulation following the commonly used 54-question public pattern: reasoning, mathematical ability, verbal and pseudocode. Timing is intentionally close to the longer, accuracy-focused Infosys assessment style.",
     cutoffPercent: 70,
     sourceId: "infosys-careers",
-    difficultyMix: SIMULATION_MIX,
+    difficultyMix: patternMix(54),
     sections: [
-      { id: "quant", label: "Quantitative Aptitude", questionCount: 15, durationMinutes: 30, source: "mixed" },
-      { id: "reasoning", label: "Logical Reasoning", questionCount: 25, durationMinutes: 28, source: "mixed" },
-      { id: "verbal", label: "Verbal Ability", questionCount: 35, durationMinutes: 30, source: "mixed" },
-      { id: "coding", label: "Pseudocode", questionCount: 15, durationMinutes: 25, source: "mixed" },
+      { id: "reasoning", label: "Reasoning Ability", questionCount: 15, durationMinutes: 25, source: "mixed" },
+      { id: "quant", label: "Mathematical Ability", questionCount: 10, durationMinutes: 35, source: "mixed" },
+      { id: "verbal", label: "Verbal Ability", questionCount: 20, durationMinutes: 20, source: "mixed" },
+      { id: "coding", label: "Pseudocode", questionCount: 9, durationMinutes: 10, source: "mixed" },
     ],
     ...review,
   },
   {
     id: "sim-wipro",
     companyId: "wipro",
-    title: "Wipro Elite Full Simulation (90Q)",
+    title: "Wipro Elite Full Simulation (52Q)",
     description:
-      "Full-length Wipro Elite NTH simulation. The real ~128-minute test (no negative marking) is verbal-heavy aptitude (Quant 16, Logical 14, Verbal 22) plus a written-communication essay round and a 2-problem coding test; this MCQ paper covers the aptitude + coding-logic portion on a 10 easy / 40 medium / 40 hard curve.",
+      "Wipro Elite NTH aptitude simulation aligned to the public 52-question MCQ layer: quantitative, logical and verbal. Written communication and two coding problems are represented elsewhere in StudyBench as essay/interview and coding practice.",
     cutoffPercent: 68,
     sourceId: "wipro-careers",
-    difficultyMix: SIMULATION_MIX,
+    difficultyMix: patternMix(52),
     sections: [
-      { id: "quant", label: "Quantitative Aptitude", questionCount: 20, durationMinutes: 20, source: "mixed" },
-      { id: "reasoning", label: "Logical Ability", questionCount: 18, durationMinutes: 18, source: "mixed" },
-      { id: "verbal", label: "Verbal Ability", questionCount: 27, durationMinutes: 23, source: "mixed" },
-      { id: "coding", label: "Coding MCQ", questionCount: 25, durationMinutes: 32, source: "mixed" },
+      { id: "quant", label: "Quantitative Aptitude", questionCount: 16, durationMinutes: 16, source: "mixed" },
+      { id: "reasoning", label: "Logical Ability", questionCount: 14, durationMinutes: 14, source: "mixed" },
+      { id: "verbal", label: "Verbal Ability", questionCount: 22, durationMinutes: 18, source: "mixed" },
     ],
     ...review,
   },
@@ -271,10 +79,10 @@ const SIMULATION_BASES: MockTest[] = [
     companyId: "accenture",
     title: "Accenture Full Simulation (90Q)",
     description:
-      "Full-length Accenture cognitive + technical simulation: numerical, logical, verbal and technical MCQs, tuned to 10 easy / 40 medium / 40 hard.",
+      "Accenture cognitive + technical simulation covering numerical, logical, verbal and technical MCQs. Coding and communication are practised as separate rounds, matching the public multi-stage Accenture assessment flow.",
     cutoffPercent: 68,
     sourceId: "accenture-careers",
-    difficultyMix: SIMULATION_MIX,
+    difficultyMix: patternMix(90),
     sections: [
       { id: "quant", label: "Numerical Ability", questionCount: 23, durationMinutes: 25, source: "mixed" },
       { id: "reasoning", label: "Logical Ability", questionCount: 22, durationMinutes: 24, source: "mixed" },
@@ -286,133 +94,32 @@ const SIMULATION_BASES: MockTest[] = [
   {
     id: "sim-cognizant",
     companyId: "cognizant",
-    title: "Cognizant GenC Full Simulation (90Q)",
+    title: "Cognizant GenC Full Simulation (70Q)",
     description:
-      "Full-length Cognizant GenC simulation across quantitative aptitude, logical ability, verbal and technical basics, with a 10 easy / 40 medium / 40 hard curve.",
+      "Cognizant GenC simulation across aptitude, logical, verbal and technical basics, with Automata-style coding practice handled in the coding ladder.",
     cutoffPercent: 68,
     sourceId: "cognizant-careers",
-    difficultyMix: SIMULATION_MIX,
+    difficultyMix: patternMix(70),
     sections: [
-      { id: "quant", label: "Quantitative Aptitude", questionCount: 23, durationMinutes: 25, source: "mixed" },
-      { id: "reasoning", label: "Logical Ability", questionCount: 22, durationMinutes: 24, source: "mixed" },
-      { id: "verbal", label: "Verbal Ability", questionCount: 20, durationMinutes: 20, source: "mixed" },
-      { id: "cs-core", label: "Technical Basics", questionCount: 25, durationMinutes: 28, source: "mixed" },
-    ],
-    ...review,
-  },
-  {
-    id: "sim-capgemini",
-    companyId: "capgemini",
-    title: "Capgemini Full Simulation (90Q)",
-    description:
-      "Full-length Capgemini simulation across numerical, reasoning, verbal/written-English and pseudocode logic, tuned to 10 easy / 40 medium / 40 hard.",
-    cutoffPercent: 68,
-    sourceId: "capgemini-careers",
-    difficultyMix: SIMULATION_MIX,
-    sections: [
-      { id: "quant", label: "Numerical Ability", questionCount: 23, durationMinutes: 25, source: "mixed" },
-      { id: "reasoning", label: "Logical Ability", questionCount: 22, durationMinutes: 24, source: "mixed" },
-      { id: "verbal", label: "Verbal / Written English", questionCount: 22, durationMinutes: 22, source: "mixed" },
-      { id: "coding", label: "Pseudocode", questionCount: 23, durationMinutes: 32, source: "mixed" },
-    ],
-    ...review,
-  },
-  {
-    id: "sim-epam",
-    companyId: "epam",
-    title: "EPAM Full Simulation (90Q)",
-    description:
-      "Full-length EPAM simulation weighted toward programming logic and CS fundamentals with a lighter reasoning layer, tuned to 10 easy / 40 medium / 40 hard.",
-    cutoffPercent: 72,
-    sourceId: "epam-careers",
-    difficultyMix: SIMULATION_MIX,
-    sections: [
-      { id: "coding", label: "Programming Logic", questionCount: 45, durationMinutes: 60, source: "mixed" },
-      { id: "cs-core", label: "CS Fundamentals", questionCount: 30, durationMinutes: 32, source: "mixed" },
-      { id: "reasoning", label: "Logical Reasoning", questionCount: 15, durationMinutes: 16, source: "mixed" },
-    ],
-    ...review,
-  },
-  {
-    id: "sim-ibm",
-    companyId: "ibm",
-    title: "IBM Full Simulation (90Q)",
-    description:
-      "Full-length IBM simulation across quantitative, logical, verbal aptitude and problem-solving, tuned to 10 easy / 40 medium / 40 hard.",
-    cutoffPercent: 68,
-    sourceId: "ibm-careers",
-    difficultyMix: SIMULATION_MIX,
-    sections: [
-      { id: "quant", label: "Quantitative Aptitude", questionCount: 23, durationMinutes: 25, source: "mixed" },
-      { id: "reasoning", label: "Logical Reasoning", questionCount: 22, durationMinutes: 24, source: "mixed" },
-      { id: "verbal", label: "Verbal Ability", questionCount: 20, durationMinutes: 20, source: "mixed" },
-      { id: "coding", label: "Problem Solving", questionCount: 25, durationMinutes: 32, source: "mixed" },
-    ],
-    ...review,
-  },
-  {
-    id: "sim-unisys",
-    companyId: "unisys",
-    title: "Unisys Full Simulation (90Q)",
-    description:
-      "Full-length Unisys simulation across aptitude and technical fundamentals, tuned to 10 easy / 40 medium / 40 hard.",
-    cutoffPercent: 65,
-    sourceId: "unisys-careers",
-    difficultyMix: SIMULATION_MIX,
-    sections: [
-      { id: "quant", label: "Quantitative Aptitude", questionCount: 23, durationMinutes: 25, source: "mixed" },
-      { id: "reasoning", label: "Logical Ability", questionCount: 22, durationMinutes: 24, source: "mixed" },
-      { id: "verbal", label: "Verbal Ability", questionCount: 20, durationMinutes: 20, source: "mixed" },
-      { id: "cs-core", label: "Technical Basics", questionCount: 25, durationMinutes: 28, source: "mixed" },
-    ],
-    ...review,
-  },
-  {
-    id: "sim-techmahindra",
-    companyId: "techmahindra",
-    title: "Tech Mahindra Full Simulation (90Q)",
-    description:
-      "Full-length Tech Mahindra simulation across aptitude and technical fundamentals, tuned to 10 easy / 40 medium / 40 hard.",
-    cutoffPercent: 65,
-    sourceId: "techmahindra-careers",
-    difficultyMix: SIMULATION_MIX,
-    sections: [
-      { id: "quant", label: "Quantitative Aptitude", questionCount: 23, durationMinutes: 25, source: "mixed" },
-      { id: "reasoning", label: "Logical Ability", questionCount: 22, durationMinutes: 24, source: "mixed" },
-      { id: "verbal", label: "Verbal Ability", questionCount: 20, durationMinutes: 20, source: "mixed" },
-      { id: "cs-core", label: "Technical Basics", questionCount: 25, durationMinutes: 28, source: "mixed" },
-    ],
-    ...review,
-  },
-  {
-    id: "sim-hcltech",
-    companyId: "hcltech",
-    title: "HCLTech Full Simulation (90Q)",
-    description:
-      "Full-length HCLTech simulation across aptitude and technical fundamentals, tuned to 10 easy / 40 medium / 40 hard.",
-    cutoffPercent: 65,
-    sourceId: "hcltech-careers",
-    difficultyMix: SIMULATION_MIX,
-    sections: [
-      { id: "quant", label: "Quantitative Aptitude", questionCount: 23, durationMinutes: 25, source: "mixed" },
-      { id: "reasoning", label: "Logical Ability", questionCount: 22, durationMinutes: 24, source: "mixed" },
-      { id: "verbal", label: "Verbal Ability", questionCount: 20, durationMinutes: 20, source: "mixed" },
-      { id: "cs-core", label: "Technical Basics", questionCount: 25, durationMinutes: 28, source: "mixed" },
+      { id: "quant", label: "Quantitative Aptitude", questionCount: 18, durationMinutes: 20, source: "mixed" },
+      { id: "reasoning", label: "Logical Ability", questionCount: 18, durationMinutes: 20, source: "mixed" },
+      { id: "verbal", label: "Verbal Ability", questionCount: 18, durationMinutes: 18, source: "mixed" },
+      { id: "cs-core", label: "Technical Basics", questionCount: 16, durationMinutes: 22, source: "mixed" },
     ],
     ...review,
   },
   {
     id: "sim-zoho",
     companyId: "zoho",
-    title: "Zoho Full Simulation (90Q)",
+    title: "Zoho Full Simulation (75Q)",
     description:
-      "Full-length Zoho simulation. Zoho's real process is a small combined Aptitude + C-MCQ round (~20 questions) then heavy programming rounds (5 programs, then a system-design task) and a technical interview; this paper is weighted toward programming logic with CS fundamentals and aptitude on a 10 easy / 40 medium / 40 hard curve.",
+      "Zoho simulation weighted toward programming logic, CS fundamentals and aptitude. Zoho's public process is programming-heavy, so the mock prioritises logic while machine coding and system design live in the coding ladder.",
     cutoffPercent: 75,
     sourceId: "zoho-careers",
-    difficultyMix: SIMULATION_MIX,
+    difficultyMix: patternMix(75),
     sections: [
-      { id: "coding", label: "Programming Logic", questionCount: 55, durationMinutes: 75, source: "mixed" },
-      { id: "cs-core", label: "CS Fundamentals", questionCount: 20, durationMinutes: 22, source: "mixed" },
+      { id: "coding", label: "Programming Logic", questionCount: 42, durationMinutes: 55, source: "mixed" },
+      { id: "cs-core", label: "CS Fundamentals", questionCount: 18, durationMinutes: 22, source: "mixed" },
       { id: "quant", label: "Aptitude", questionCount: 15, durationMinutes: 16, source: "mixed" },
     ],
     ...review,
@@ -425,7 +132,7 @@ const SIMULATION_BASES: MockTest[] = [
       "Broad full-length placement simulation across aptitude, reasoning, verbal, coding and CS core, with a 10 easy / 40 medium / 40 hard difficulty curve.",
     cutoffPercent: 65,
     sourceId: "studybench-curriculum",
-    difficultyMix: SIMULATION_MIX,
+    difficultyMix: patternMix(90),
     sections: [
       { id: "quant", label: "Quantitative", questionCount: 18, durationMinutes: 20, source: "mixed" },
       { id: "reasoning", label: "Reasoning", questionCount: 18, durationMinutes: 20, source: "mixed" },
@@ -437,7 +144,7 @@ const SIMULATION_BASES: MockTest[] = [
   },
 ]
 
-const SIMULATIONS_PER_COMPANY = 9
+const SIMULATIONS_PER_COMPANY = 10
 
 function expandSimulation(base: MockTest): MockTest[] {
   return Array.from({ length: SIMULATIONS_PER_COMPANY }, (_, index) => {
@@ -445,7 +152,7 @@ function expandSimulation(base: MockTest): MockTest[] {
     return {
       ...base,
       id: `${base.id}-set-${String(setNo).padStart(2, "0")}`,
-      title: `${base.title.replace(" (90Q)", "")} - Set ${setNo} (90Q)`,
+      title: `${base.title.replace(/ \(\d+Q\)$/, "")} - Set ${setNo} (${base.sections.reduce((sum, section) => sum + section.questionCount, 0)}Q)`,
       description:
         setNo === 1
           ? base.description
@@ -463,75 +170,10 @@ function stableSeed(input: string): number {
   return Math.abs(hash)
 }
 
-function miniSections(base: MockTest) {
-  return base.sections.map((section) => ({
-    ...section,
-    questionCount:
-      section.id === "coding"
-        ? Math.max(section.questionCount * 2, 8)
-        : Math.max(section.questionCount * 2, 10),
-    durationMinutes:
-      section.id === "coding"
-        ? Math.max(section.durationMinutes * 2, 14)
-        : Math.max(section.durationMinutes * 2, 12),
-  }))
-}
 
-function fullLengthSections(base: MockTest) {
-  return base.sections.map((section) => ({
-    ...section,
-    questionCount:
-      section.id === "coding"
-        ? Math.max(section.questionCount * 4, 16)
-        : Math.max(section.questionCount * 5, 20),
-    durationMinutes:
-      section.id === "coding"
-        ? Math.max(section.durationMinutes * 4, 35)
-        : Math.max(section.durationMinutes * 4, 25),
-  }))
-}
-
-function hardFullLengthSections(base: MockTest) {
-  return fullLengthSections(base).map((section) => ({
-    ...section,
-    questionCount:
-      section.id === "coding"
-        ? Math.max(section.questionCount + 6, 22)
-        : Math.max(section.questionCount + 8, 28),
-    durationMinutes:
-      section.id === "coding"
-        ? Math.max(section.durationMinutes + 10, 45)
-        : Math.max(section.durationMinutes + 8, 32),
-  }))
-}
-
-const BASE_MOCKS_PER_COMPANY = 60
-export const MOCKS_PER_COMPANY = BASE_MOCKS_PER_COMPANY + SIMULATIONS_PER_COMPANY
-
-function expandMock(base: MockTest): MockTest[] {
-  return Array.from({ length: BASE_MOCKS_PER_COMPANY }, (_, index) => {
-    const mockNo = index + 1
-    const fullLength = mockNo >= 6
-    const hard = mockNo >= 13
-    return {
-      ...base,
-      id: `${base.id}-${String(mockNo).padStart(2, "0")}`,
-      title: `${base.title} ${mockNo}${hard ? " - Hard Drive Simulation" : fullLength ? " - Full Length" : " - Mini"}`,
-      description:
-        mockNo === 1
-          ? base.description
-          : hard
-            ? `${base.description} Hard variant ${mockNo - 12} adds more question volume and tighter review expectations for final placement pressure.`
-            : fullLength
-            ? `${base.description} Full-length variant ${mockNo - 5} increases section volume and timer pressure for final-drive simulation.`
-            : `${base.description} Mini variant ${mockNo} uses a different question mix for warm-up practice.`,
-      sections: hard ? hardFullLengthSections(base) : fullLength ? fullLengthSections(base) : miniSections(base),
-    }
-  })
-}
+export const MOCKS_PER_COMPANY = SIMULATIONS_PER_COMPANY
 
 export const MOCK_TESTS: MockTest[] = [
-  ...BASE_MOCKS.flatMap(expandMock),
   ...SIMULATION_BASES.flatMap(expandSimulation),
 ]
 
@@ -547,12 +189,6 @@ const MOCKS_BY_COMPANY = MOCK_TESTS.reduce(
     accenture: [],
     zoho: [],
     cognizant: [],
-    capgemini: [],
-    epam: [],
-    ibm: [],
-    unisys: [],
-    techmahindra: [],
-    hcltech: [],
     general: [],
   } as Record<CompanyId, MockTest[]>,
 )

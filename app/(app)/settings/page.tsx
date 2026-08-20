@@ -31,6 +31,7 @@ import { PageHeader } from "@/components/app/page-header"
 import { CompanyAvatar } from "@/components/app/ui-bits"
 import {
   PLAN_FEATURES,
+  PREMIUM_FOOD_COMPARISON_LABEL,
   PREMIUM_MONTHLY_EQUIVALENT_INR,
   premiumPriceLabel,
 } from "@/lib/access"
@@ -237,7 +238,7 @@ export default function SettingsPage() {
                   <p className="max-w-2xl text-sm text-muted-foreground">
                     Pay {premiumPriceLabel()} through Razorpay to unlock deeper company
                     preparation, more mocks and better feedback for {premiumTargetNames.join(", ")}.
-                    That works out to about Rs {PREMIUM_MONTHLY_EQUIVALENT_INR}/month for a year of access.
+                    That is about Rs {PREMIUM_MONTHLY_EQUIVALENT_INR}/month - {PREMIUM_FOOD_COMPARISON_LABEL.toLowerCase()}.
                   </p>
                 </div>
                 <Button
@@ -307,10 +308,10 @@ export default function SettingsPage() {
                   id="creator-code"
                   value={creatorCode}
                   onChange={(event) => setCreatorCode(event.target.value.toUpperCase())}
-                  placeholder="STUDYBENCH-XXXXX-XXXXX"
+                  placeholder="SB-XXXX-XXXX-XXXX"
                   autoComplete="off"
                   spellCheck={false}
-                  maxLength={22}
+                  maxLength={17}
                 />
                 <p className="text-xs text-muted-foreground">
                   Each invite works once and unlocks creator access for one year on this account.
@@ -420,7 +421,7 @@ export default function SettingsPage() {
       {/* Profile */}
       <ProfileEditor profile={state.profile} onSave={updateProfile} />
 
-      {/* Account actions */}
+      {/* Notifications */}
       {renderSecondarySections ? <NotificationSettings /> : null}
 
       {/* Danger zone */}
@@ -516,6 +517,8 @@ function loadRazorpayCheckout() {
     document.body.appendChild(script)
   })
 }
+
+
 
 function DeleteAccountDialog({ onConfirm }: { onConfirm: () => Promise<void> }) {
   const router = useRouter()

@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { COMPANIES } from "@/lib/data/companies"
 import { ALL_CODING_PROBLEMS, codingProblemsForCompany } from "@/lib/data/coding-problems"
-import { CHAPTER_PRACTICE_TARGET, chapterPracticeQuestions, getSections } from "@/lib/data/content"
+import {
+  CHAPTER_PRACTICE_TARGET,
+  CHAPTER_QUIZ_TOTAL_PER_TRACK,
+  chapterPracticeQuestions,
+  getSections,
+  totalChapterQuizQuestions,
+} from "@/lib/data/content"
 import { INTERVIEW_QUESTIONS } from "@/lib/data/interview"
 import { MOCKS_PER_COMPANY, MOCK_TESTS, buildMockQuestions } from "@/lib/data/mocks"
 import { ALL_PYQS, EXPANDED_PYQS, FLAGSHIP_PYQS, PYQS, pyqsForCompany } from "@/lib/data/pyqs"
@@ -10,6 +16,8 @@ import { SOURCES, sourceById } from "@/lib/data/sources"
 import type { Question } from "@/lib/types"
 
 const APPROVED_SOURCE_KINDS = ["official", "book", "reference", "youtube"] as const
+const ACTIVE_COMPANY_IDS = ["tcs", "infosys", "wipro", "accenture", "zoho", "cognizant", "general"] as const
+const REMOVED_COMPANY_IDS = ["capgemini", "techmahindra", "hcltech", "hcl", "unisys", "epam", "ibm"] as const
 
 function expectKnownSource(id: string | undefined, context: string) {
   expect(id, `${context} is missing sourceId`).toBeTruthy()
@@ -27,6 +35,18 @@ function expectUniqueIds(ids: string[], context: string) {
 }
 
 describe("content source governance", () => {
+  it("keeps the app limited to the active company tracks", () => {
+    expect(COMPANIES.map((company) => company.id)).toEqual([...ACTIVE_COMPANY_IDS])
+
+    const sourceIds = Object.keys(SOURCES)
+    for (const removedId of REMOVED_COMPANY_IDS) {
+      expect(
+        sourceIds.some((sourceId) => sourceId.includes(removedId)),
+        `${removedId} source should not remain after removing that company track`,
+      ).toBe(false)
+    }
+  })
+
   it("registers only approved source kinds and links official sources", () => {
     for (const source of Object.values(SOURCES)) {
       expect(source.id.trim().length).toBeGreaterThan(0)
@@ -60,9 +80,14 @@ describe("content source governance", () => {
 
   it("sources every seeded lesson and chapter quiz question", () => {
     for (const company of COMPANIES) {
+      expect(
+        totalChapterQuizQuestions(company.id),
+        `${company.id} chapter quiz bank should stay capped at ${CHAPTER_QUIZ_TOTAL_PER_TRACK}`,
+      ).toBe(CHAPTER_QUIZ_TOTAL_PER_TRACK)
+
       for (const section of getSections(company.id)) {
         for (const chapter of section.chapters) {
-          const quizMin = 150
+          const quizMin = 45
           expect(chapter.quiz.length, `${company.id}/${chapter.id} needs a larger quiz`).toBeGreaterThanOrEqual(quizMin)
           for (const difficulty of ["easy", "medium", "hard"] as const) {
             expect(
@@ -103,10 +128,11 @@ describe("content source governance", () => {
 
   it("keeps every company PYQ bank at serious starter scale", () => {
     for (const company of COMPANIES) {
-      const min = company.id === "zoho" ? 560 : company.id === "general" ? 580 : 450
-      expect(pyqsForCompany(company.id).length, `${company.id} needs more PYQs`).toBeGreaterThanOrEqual(min)
+      const pyqs = pyqsForCompany(company.id)
+      expect(pyqs.length, `${company.id} should keep PYQs in the 500-600 priority range`).toBeGreaterThanOrEqual(500)
+      expect(pyqs.length, `${company.id} should keep PYQs in the 500-600 priority range`).toBeLessThanOrEqual(600)
       expect(
-        pyqsForCompany(company.id).filter((question) => question.difficulty === "hard").length,
+        pyqs.filter((question) => question.difficulty === "hard").length,
         `${company.id} needs a meaningful hard-question layer`,
       ).toBeGreaterThanOrEqual(company.id === "zoho" ? 90 : 60)
     }
@@ -136,7 +162,19 @@ describe("content source governance", () => {
     for (const company of COMPANIES) {
       const mocks = MOCK_TESTS.filter((mock) => mock.companyId === company.id)
       expect(mocks.length, `${company.id} should have ${MOCKS_PER_COMPANY} mock tests`).toBe(MOCKS_PER_COMPANY)
+      expect(MOCKS_PER_COMPANY, "each company should have exactly 10 full-length mocks").toBe(10)
       expect(new Set(mocks.map((mock) => mock.id)).size, `${company.id} mock IDs should be unique`).toBe(MOCKS_PER_COMPANY)
+      for (const mock of mocks) {
+        const totalQuestions = mock.sections.reduce((sum, section) => sum + section.questionCount, 0)
+        expect(totalQuestions, `${mock.id} should be a substantial company-pattern simulation`).toBeGreaterThanOrEqual(50)
+        expect(totalQuestions, `${mock.id} should stay practical for browser-based practice`).toBeLessThanOrEqual(100)
+        expect(
+          mock.difficultyMix
+            ? mock.difficultyMix.easy + mock.difficultyMix.medium + mock.difficultyMix.hard
+            : totalQuestions,
+          `${mock.id} difficulty mix must match its pattern count`,
+        ).toBe(totalQuestions)
+      }
     }
   })
 

@@ -13,7 +13,7 @@ const problem: CodingProblem = {
   inputFormat: "First line n. Second line has n integers.",
   outputFormat: "Print sum.",
   constraints: ["1 <= n <= 10"],
-  starterCode: "function solve(arr) {\n  return 0\n}",
+  solution: "function solve(arr) {\n  return 0\n}",
   testCases: [],
   editorial: "Loop once.",
   estimatedMinutes: 10,

@@ -32,7 +32,7 @@ export interface LegalDoc {
 
 const GRIEVANCE =
   "Grievance Officer: The Founders, StudyBench - " +
-  "Email: smartonboardai@gmail.com - " +
+  "Email: studybench07@gmail.com - " +
   "Address: Erode, Tamil Nadu - 638001, India - " +
   "Response acknowledged within 24 hours and resolved within 15 days, " +
   "in line with the IT Rules, 2021 and the DPDP Act, 2023."
@@ -169,7 +169,7 @@ export const PRIVACY_POLICY: LegalDoc = {
       blocks: [
         {
           k: "p",
-          text: "Your consent is free, specific, informed, unconditional and unambiguous, given through clear affirmative action when you sign up and use specific features. You may **withdraw your consent** at any time, with the same ease with which it was given, by changing settings, emailing smartonboardai@gmail.com, or deleting your account from Settings.",
+          text: "Your consent is free, specific, informed, unconditional and unambiguous, given through clear affirmative action when you sign up and use specific features. You may **withdraw your consent** at any time, with the same ease with which it was given, by changing settings, emailing studybench07@gmail.com, or deleting your account from Settings.",
         },
         {
           k: "p",
@@ -275,7 +275,7 @@ export const PRIVACY_POLICY: LegalDoc = {
         },
         {
           k: "p",
-          text: "To exercise any right, email smartonboardai@gmail.com or contact our Grievance Officer (Section 16). We may need to verify your identity before acting on a request.",
+          text: "To exercise any right, email studybench07@gmail.com or contact our Grievance Officer (Section 16). We may need to verify your identity before acting on a request.",
         },
       ],
     },
@@ -320,7 +320,7 @@ export const PRIVACY_POLICY: LegalDoc = {
         { k: "p", text: GRIEVANCE },
         {
           k: "p",
-          text: "General privacy queries: smartonboardai@gmail.com - General support: smartonboardai@gmail.com.",
+          text: "General privacy queries: studybench07@gmail.com - General support: studybench07@gmail.com.",
         },
       ],
     },
@@ -408,7 +408,7 @@ export const TERMS: LegalDoc = {
       blocks: [
         {
           k: "p",
-          text: "Company names and marks referenced on the Platform - including TCS, Infosys, Wipro, Accenture, Zoho, Cognizant, Capgemini, EPAM, IBM, Unisys, Tech Mahindra and HCLTech - are the **trademarks or registered trademarks of their respective owners**. StudyBench is an **independent** preparation platform and is **not affiliated with, authorised by, endorsed by, or sponsored by** any of these companies. Such names are used only nominatively, to identify the publicly known test patterns for which our independently created preparation material is intended. All preparation content is original and is not sourced from any company's confidential or proprietary materials.",
+          text: "Company names and marks referenced on the Platform - including TCS, Infosys, Wipro, Accenture, Zoho and Cognizant - are the **trademarks or registered trademarks of their respective owners**. StudyBench is an **independent** preparation platform and is **not affiliated with, authorised by, endorsed by, or sponsored by** any of these companies. Such names are used only nominatively, to identify the publicly known test patterns for which our independently created preparation material is intended. All preparation content is original and is not sourced from any company's confidential or proprietary materials.",
         },
       ],
     },
@@ -422,7 +422,7 @@ export const TERMS: LegalDoc = {
             "You must provide accurate, current and complete information and keep it updated.",
             "You are responsible for maintaining the confidentiality of your credentials and for all activities under your account.",
             "One account is for one individual; you may not share, sell, or transfer your account.",
-            "Notify us immediately at smartonboardai@gmail.com of any unauthorised use or security breach.",
+            "Notify us immediately at studybench07@gmail.com of any unauthorised use or security breach.",
           ],
         },
       ],
@@ -434,7 +434,7 @@ export const TERMS: LegalDoc = {
         {
           k: "list",
           items: [
-            "The Platform offers a free tier and an optional paid **Premium** plan (currently priced at **Rs 249 per year**, inclusive of applicable taxes unless stated otherwise).",
+            "The Platform offers a free tier and an optional paid **Premium** plan (currently priced at **₹149/year**, inclusive of applicable taxes unless stated otherwise).",
             "Payments are processed by our third-party gateway (Razorpay). By purchasing, you also agree to the gateway's terms. We do not store your card or UPI credentials.",
             "Prices, features and taxes (including GST) may change prospectively; the price applicable at the time of your purchase governs that purchase.",
             "Unless expressly stated as auto-renewing at checkout, subscriptions do not auto-renew, and you will need to renew manually to continue Premium access.",
@@ -453,7 +453,7 @@ export const TERMS: LegalDoc = {
         {
           k: "list",
           items: [
-            "**Failed/duplicate payments:** if you are charged but Premium is not activated, or you are charged more than once for the same plan, contact smartonboardai@gmail.com within 7 days for verification and a full refund of the erroneous amount.",
+            "**Failed/duplicate payments:** if you are charged but Premium is not activated, or you are charged more than once for the same plan, contact studybench07@gmail.com within 7 days for verification and a full refund of the erroneous amount.",
             "**Cancellation:** you may cancel Premium at any time from Settings; cancellation stops future renewals and you retain access until the end of the paid period.",
             "Approved refunds are processed to the original payment method within a reasonable period, typically 5-10 business days, subject to the gateway's timelines.",
           ],
@@ -615,7 +615,7 @@ export const TERMS: LegalDoc = {
         },
         {
           k: "p",
-          text: "Questions about these Terms may be sent to smartonboardai@gmail.com.",
+          text: "Questions about these Terms may be sent to studybench07@gmail.com.",
         },
       ],
     },

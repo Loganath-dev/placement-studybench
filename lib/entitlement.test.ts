@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import {
+  grantPremiumMonths,
   grantPremiumYear,
   recordPaymentOnce,
   type PaymentInput,
@@ -67,7 +68,7 @@ const PAYMENT: PaymentInput = {
   paymentId: "pay_123",
   orderId: "order_456",
   userId: "user-a",
-  amount: 24900,
+  amount: 9900,
   currency: "INR",
   source: "verify",
 }
@@ -82,7 +83,7 @@ describe("recordPaymentOnce", () => {
       payment_id: "pay_123",
       order_id: "order_456",
       user_id: "user-a",
-      amount: 24900,
+      amount: 9900,
       currency: "INR",
       source: "verify",
     })
@@ -155,5 +156,28 @@ describe("grantPremiumYear", () => {
       userStateUpsertError: { message: "write failed" },
     })
     await expect(grantPremiumYear(admin, "user-a")).rejects.toThrow("write failed")
+  })
+})
+
+describe("grantPremiumMonths", () => {
+  const MONTH_MS = 30 * 24 * 60 * 60 * 1000
+
+  it("grants about one month to a user without active premium", async () => {
+    const { admin, calls } = makeAdmin({ premiumUntil: null })
+    const until = await grantPremiumMonths(admin, "referrer-a", 1)
+    expect(Math.abs(Date.parse(until) - (Date.now() + MONTH_MS))).toBeLessThan(4 * 24 * 60 * 60 * 1000)
+    expect(calls.userStateUpserted).toMatchObject({
+      id: "referrer-a",
+      premium: true,
+      premium_until: until,
+    })
+  })
+
+  it("extends from an existing future expiry", async () => {
+    const currentExpiry = new Date(Date.now() + MONTH_MS).toISOString()
+    const { admin } = makeAdmin({ premiumUntil: currentExpiry })
+    const until = await grantPremiumMonths(admin, "referrer-a", 1)
+    expect(Date.parse(until)).toBeGreaterThan(Date.parse(currentExpiry))
+    expect(Date.parse(until) - Date.parse(currentExpiry)).toBeGreaterThan(25 * 24 * 60 * 60 * 1000)
   })
 })

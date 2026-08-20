@@ -15,7 +15,7 @@
 | Owner | CEO / Product |
 | Date | 05 June 2026 |
 | Platforms | **Web (Phase 1 — primary)** → Android (Phase 2) → iOS (future) |
-| Pricing | Free tier + Premium ₹249 / year (Razorpay) |
+| Pricing | Free tier + Premium ₹149/year (Razorpay) |
 | UI direction | **Light & modern** — learning-blue primary on near-white surfaces; emerald = readiness, amber = streak/XP |
 
 ### Revision history
@@ -55,11 +55,11 @@ No competitor presents "how ready am I, and how likely am I, for each of my comp
 
 ### 3.1 Business goals
 1. Acquire and retain students preparing for multiple companies.
-2. Convert free users to ₹249/year Premium.
+2. Convert free users to ₹149/year Premium.
 3. Win on **content quality** and an honest, marketable **PRI + Placement Probability**.
 
 ### 3.2 Non-goals (out of scope for MVP)
-Bulk/institutional licensing · AI features (AI mocks, adaptive learning, AI doubt-solving) · Referral program (revisit ~500 users) · Certificates/badges that are *shareable* · **Leaderboards (removed)** · Success-stories module · **Resume Builder (removed)** · **Weekly sprint & timed challenges (removed)** · Community/job board · Native iOS at launch.
+Bulk/institutional licensing · AI features (AI mocks, adaptive learning, AI doubt-solving) · Certificates/badges that are *shareable* · **Leaderboards (removed)** · Success-stories module · **Resume Builder (removed)** · **Weekly sprint & timed challenges (removed)** · Community/job board · Native iOS at launch.
 
 ### 3.3 Success metrics
 **North Star:** **PRI progress** — median improvement in a student's PRI per active week, aggregated across selected companies.
@@ -101,8 +101,9 @@ Bulk/institutional licensing · AI features (AI mocks, adaptive learning, AI dou
 14. **Mock tests** (company-pattern) + final interview-round quiz.
 15. **Analytics** page — per-company progress **+ Weakest Topics + Strongest Topics**.
 16. Free vs Premium gating + ads on free tier.
-17. **Razorpay** payment (₹249/year).
-18. **Settings** — target companies (primary + interested), account, notifications, subscription.
+17. **Razorpay** payment (₹149/year).
+18. **Referral program** — share referral link; when one referred friend becomes paid Premium, referrer gets one free Premium month once per account.
+19. **Settings** — target companies (primary + interested), account, notifications, subscription.
 
 ---
 
@@ -239,7 +240,7 @@ XP for actions (§10.2) · Levels from cumulative XP (§10.3) · Daily streak wi
 
 ### 9.16 Free vs Premium and ads
 
-| Capability | Free | Premium (₹249/yr) |
+| Capability | Free | Premium (₹149/year) |
 |---|---|---|
 | Chapters per section | First chapter only | All chapters, all 7 tracks |
 | Ads | Yes | None |
@@ -254,12 +255,19 @@ XP for actions (§10.2) · Levels from cumulative XP (§10.3) · Daily streak wi
 - **FR-9.16.2** Ads never interrupt an in-progress quiz.
 
 ### 9.17 Payments — Razorpay
-Single plan ₹249/year · Razorpay Checkout (UPI/card/netbanking/wallet) · server-side signature verification + webhooks · immediate entitlement on success · invoice email · status/expiry in Settings · renewal reminders (auto-renew vs manual — O-3) · no card data stored (Razorpay PCI flow).
+Single plan ₹149/year · Razorpay Checkout (UPI/card/netbanking/wallet) · server-side signature verification + webhooks · immediate entitlement on success · invoice email · status/expiry in Settings · renewal reminders (auto-renew vs manual — O-3) · no card data stored (Razorpay PCI flow).
 
-### 9.18 Settings
+### 9.18 Referral program
+- **FR-9.18.1** Every signed-in user can copy a referral link from Dashboard/Settings.
+- **FR-9.18.2** Referral attribution is captured once when the referred user signs up and completes onboarding; self-referrals are ignored.
+- **FR-9.18.3** Reward trigger: when a referred user completes a verified paid Premium purchase, the referrer receives **+1 month Premium**.
+- **FR-9.18.4** Reward cap: each referrer can receive this referral reward **only once total**, even if multiple referred friends later buy Premium.
+- **FR-9.18.5** Reward granting must be server-side, idempotent across Razorpay verify/webhook retries, and backed by a ledger table.
+
+### 9.19 Settings
 Target Companies (Primary + Interested, "Change Target Company") · add/remove interested companies (progress preserved) · edit profile (CGPA, year, drive date), notifications, subscription, account deletion.
 
-### 9.19 Notifications
+### 9.20 Notifications
 Daily streak/challenge reminder · drive-date countdown · re-engagement for lapsed users. Web push in Phase 1; mobile push later.
 
 ---
@@ -328,7 +336,7 @@ probability  = clamp( 50 + gap × company.slope , 2 , 97 )   // logistic-ish, bo
 - **Future — iOS.**
 
 ### 12.1 Core data entities (indicative)
-`users`, `profiles` *(no age)*, `companies`, `eligibility_cards`, `tracks`, `sections` *(6)*, `chapters`, `lessons`, `questions`, `pyqs`, `quizzes`, `quiz_attempts`, `mock_tests`, `mock_attempts`, `challenges`, `challenge_attempts`, `xp_events`, `streaks`, `badges`, `user_badges`, **`company_progress`** (per user × company), **`pri_snapshots`** (per user × company, includes probability), `topic_accuracy` *(for weak/strong topics)*, `subscriptions`, `payments`, `content_sources`.
+`users`, `profiles` *(no age, includes referred_by)*, `companies`, `eligibility_cards`, `tracks`, `sections` *(6)*, `chapters`, `lessons`, `questions`, `pyqs`, `quizzes`, `quiz_attempts`, `mock_tests`, `mock_attempts`, `challenges`, `challenge_attempts`, `xp_events`, `streaks`, `badges`, `user_badges`, **`company_progress`** (per user × company), **`pri_snapshots`** (per user × company, includes probability), `topic_accuracy` *(for weak/strong topics)*, `subscriptions`, `payments`, `referral_rewards`, `content_sources`.
 
 > **MVP build note:** the current web build uses a swappable client-side data layer (seeded content + localStorage) so the full UX is functional without secrets. Supabase/Razorpay plug into the same interfaces (`lib/data/*`, `lib/store`) for Phase 0.
 
@@ -350,7 +358,7 @@ Track: signup, onboarding completion, companies selected, lesson start/complete,
 | Phase | Scope | Gate to ship |
 |---|---|---|
 | 0 — Foundations | Auth, onboarding, data model, CMS, payments, analytics | Internal alpha stable |
-| 1 — Web MVP (primary) | All 7 tracks + 6 sections; multi-company tracking + PRI + Placement Probability + company switcher; PYQs; eligibility cards; Daily Challenge; XP/levels/streaks; mocks; weak/strong analytics; free/Premium + ads + Razorpay | Content quality bar met for live tracks; payments verified end-to-end |
+| 1 — Web MVP (primary) | All 7 tracks + 6 sections; multi-company tracking + PRI + Placement Probability + company switcher; PYQs; eligibility cards; Daily Challenge; XP/levels/streaks; mocks; weak/strong analytics; free/Premium + ads + Razorpay + referral reward | Content quality bar met for live tracks; payments verified end-to-end |
 | 2 — Android | Cross-platform app on same backend; push | Web KPIs healthy |
 | Future | iOS; deferred items | Prioritized by data |
 

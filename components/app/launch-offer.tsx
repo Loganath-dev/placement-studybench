@@ -16,20 +16,26 @@ export function LaunchOffer({
 }) {
   if (variant === "compact") {
     return (
-      <span className={cn("font-heading text-base font-bold", className)}>
-        ₹{PREMIUM_PRICE_INR}
-        <span className="text-xs font-normal text-muted-foreground">/{PREMIUM_DURATION_LABEL}</span>
-      </span>
+      <div className={cn("flex flex-col", className)}>
+        <span className="font-heading text-base font-bold">
+          ₹{PREMIUM_PRICE_INR}/{PREMIUM_DURATION_LABEL}
+        </span>
+        <span className="text-xs font-medium text-destructive animate-pulse mt-0.5">
+          Limited time period offer
+        </span>
+      </div>
     )
   }
 
   return (
-    <p className={cn("font-heading text-2xl font-bold", className)}>
-      ₹{PREMIUM_PRICE_INR}
-      <span className="ml-1 text-sm font-normal text-muted-foreground">
-        / {PREMIUM_DURATION_LABEL}
+    <div className={cn("flex flex-col", className)}>
+      <p className="font-heading text-2xl font-bold">
+        ₹{PREMIUM_PRICE_INR}/{PREMIUM_DURATION_LABEL}
+      </p>
+      <span className="text-sm font-medium text-destructive animate-pulse mt-1">
+        Limited time period offer
       </span>
-    </p>
+    </div>
   )
 }
 

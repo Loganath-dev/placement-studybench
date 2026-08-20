@@ -31,7 +31,7 @@ function LoginForm() {
     setError(null)
     setNeedsConfirm(false)
     const supabase = createClient()
-    const { error: err } = await supabase.auth.signInWithPassword({ email, password })
+    const { data, error: err } = await supabase.auth.signInWithPassword({ email, password })
     setLoading(false)
     if (err) {
       // Supabase returns this when the account exists but the email isn't verified yet.
@@ -43,10 +43,23 @@ function LoginForm() {
       }
       return
     }
-    // Continue to the requested app route; the store checks onboarding on hydration.
-    const next = searchParams.get("next")
-    const safeNext =
-      next && next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard"
+
+    let safeNext = "/dashboard"
+    if (data.user) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("id", data.user.id)
+        .maybeSingle()
+
+      if (!profile) {
+        safeNext = "/onboarding"
+      } else {
+        const next = searchParams.get("next")
+        safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard"
+      }
+    }
+
     window.location.href = safeNext
   }
 

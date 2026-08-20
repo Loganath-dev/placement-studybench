@@ -19,7 +19,6 @@
  *   daily_complete         — user finished a daily challenge category
  *   premium_upgrade        — user successfully activated premium
  *   share_pri              — user clicked "Share my PRI"
- *   invite_click           — user clicked the invite-a-friend CTA
  *   seo_page_view          — public /prep page loaded (server-side)
  *   account_delete         — user deleted their account
  *   drive_outcome_logged   — user recorded a real placement-drive outcome
@@ -27,7 +26,6 @@
 
 type EventName =
   | "marketing_cta_click"
-  | "marketing_start_cta_click"
   | "signup"
   | "onboarding_complete"
   | "chapter_start"
@@ -36,7 +34,6 @@ type EventName =
   | "daily_complete"
   | "premium_upgrade"
   | "share_pri"
-  | "invite_click"
   | "seo_page_view"
   | "account_delete"
   | "drive_outcome_logged"

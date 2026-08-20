@@ -14,11 +14,6 @@ function buildShareText(pri: number, companyShort: string) {
   return `My ${companyShort} placement readiness is ${pri}/100 (${band.label}) on ${SITE_NAME}. Track yours free: ${SITE_URL}`
 }
 
-function buildInviteUrl(userId: string) {
-  const token = btoa(userId).replace(/=/g, "")
-  return `${SITE_URL}/invite?ref=${token}`
-}
-
 async function shareOrCopy(text: string, fallbackToast: string) {
   if (typeof navigator === "undefined") return
   if (navigator.share) {
@@ -42,22 +37,11 @@ export function SharePriCard({
   companyShort: string
   userId: string | null
 }) {
-  const [copyingInvite, setCopyingInvite] = React.useState(false)
   const shareText = buildShareText(pri, companyShort)
-  const inviteUrl = userId ? buildInviteUrl(userId) : null
 
   async function handleSharePri() {
     track("share_pri", { pri, company: companyShort })
     await shareOrCopy(shareText, "Score copied to clipboard")
-  }
-
-  async function handleCopyInvite() {
-    if (!inviteUrl) return
-    setCopyingInvite(true)
-    track("invite_click", {})
-    await shareOrCopy(inviteUrl, "Invite link copied to clipboard")
-    await new Promise((r) => setTimeout(r, 1500))
-    setCopyingInvite(false)
   }
 
   return (
@@ -79,31 +63,6 @@ export function SharePriCard({
           </Button>
         </div>
 
-        {/* Invite link */}
-        {inviteUrl ? (
-          <div className="space-y-2">
-            <p className="text-xs text-muted-foreground">
-              Invite a friend — they start with a welcome boost on their first login.
-            </p>
-            <div className="flex items-center gap-2">
-              <code className="min-w-0 flex-1 truncate rounded-lg border border-border bg-muted/60 px-3 py-2 text-xs text-muted-foreground">
-                {inviteUrl}
-              </code>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleCopyInvite}
-                disabled={copyingInvite}
-              >
-                {copyingInvite ? (
-                  <Icon name="Check" className="size-4 text-[color:var(--success)]" />
-                ) : (
-                  <Icon name="Copy" className="size-4" />
-                )}
-              </Button>
-            </div>
-          </div>
-        ) : null}
       </CardContent>
     </Card>
   )

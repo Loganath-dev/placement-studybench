@@ -106,6 +106,47 @@ export async function POST(request: Request) {
     }
 
     const premiumUntil = await grantPremiumYear(admin, user.id)
+    
+    // Process affiliate commission if applicable.
+    try {
+      const { data: profile } = await admin
+        .from("profiles")
+        .select("referred_by")
+        .eq("id", user.id)
+        .maybeSingle()
+
+      if (profile?.referred_by && profile.referred_by !== user.id) {
+        const { data: settings } = await admin
+          .from("affiliate_settings")
+          .select("*")
+          .eq("id", 1)
+          .maybeSingle()
+
+        if (settings?.is_enabled) {
+          const commissionRate = settings.default_commission_rate
+          const commissionAmount = Math.floor(order.amount * (commissionRate / 100))
+          const eligibleDate = new Date()
+          eligibleDate.setDate(eligibleDate.getDate() + settings.waiting_period_days)
+          
+          // Idempotent upsert: if verify + webhook both fire for the same payment,
+          // the second call is a no-op. Previously this relied on an accidental
+          // unique-constraint violation being silently swallowed by catch.
+          await admin.from("affiliate_commissions").upsert({
+            referrer_id: profile.referred_by,
+            buyer_id: user.id,
+            payment_id: paymentId,
+            payment_amount: order.amount,
+            commission_amount: commissionAmount,
+            commission_rate: commissionRate,
+            eligible_date: eligibleDate.toISOString(),
+            status: "pending",
+          }, { onConflict: "payment_id", ignoreDuplicates: true })
+        }
+      }
+    } catch (affiliateError) {
+      captureError(affiliateError, { scope: "razorpay/verify", stage: "affiliate", userId: user.id, paymentId })
+    }
+
     return NextResponse.json({ ok: true, paymentId, premiumUntil })
   } catch (error) {
     captureError(error, { scope: "razorpay/verify", stage: "activation", userId: user.id, paymentId })

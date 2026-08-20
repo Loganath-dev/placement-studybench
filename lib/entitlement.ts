@@ -83,3 +83,35 @@ export async function grantPremiumYear(admin: AdminClient, userId: string): Prom
 
   return premiumUntilIso
 }
+
+/**
+ * Grant Premium for a small bonus window. Unlike yearly purchases, referral
+ * rewards extend from the later of now or the user's current expiry, because
+ * this is a bonus on top of any active plan.
+ */
+export async function grantPremiumMonths(
+  admin: AdminClient,
+  userId: string,
+  months: number,
+): Promise<string> {
+  const { data: existing, error: readError } = await admin
+    .from("user_state")
+    .select("premium_until")
+    .eq("id", userId)
+    .maybeSingle()
+  if (readError) throw new Error(`user_state read failed: ${readError.message}`)
+
+  const now = new Date()
+  const existingUntil = existing?.premium_until ? new Date(existing.premium_until) : null
+  const base = existingUntil && existingUntil > now ? existingUntil : now
+  const premiumUntil = new Date(base)
+  premiumUntil.setMonth(premiumUntil.getMonth() + months)
+  const premiumUntilIso = premiumUntil.toISOString()
+
+  const { error } = await admin
+    .from("user_state")
+    .upsert({ id: userId, premium: true, premium_until: premiumUntilIso })
+  if (error) throw new Error(`user_state entitlement write failed: ${error.message}`)
+
+  return premiumUntilIso
+}

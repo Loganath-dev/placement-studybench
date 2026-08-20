@@ -25,11 +25,11 @@ const csp = [
   "base-uri 'self'",
   "object-src 'none'",
   "frame-ancestors 'none'",
-  "img-src 'self' data: blob:",
+  "img-src 'self' data: blob: https://*.google-analytics.com https://*.googletagmanager.com",
   "font-src 'self' data:",
-  `script-src 'self' 'unsafe-inline' https://checkout.razorpay.com${isProd ? "" : " 'unsafe-eval'"}`,
+  `script-src 'self' 'unsafe-inline' https://checkout.razorpay.com https://www.googletagmanager.com https://va.vercel-scripts.com${isProd ? "" : " 'unsafe-eval'"}`,
   "style-src 'self' 'unsafe-inline'",
-  `connect-src 'self' ${supabaseOrigin} ${supabaseWs} https://api.razorpay.com`,
+  `connect-src 'self' ${supabaseOrigin} ${supabaseWs} https://api.razorpay.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com`,
   "form-action 'self'",
   "frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com",
   ...(isProd ? ["upgrade-insecure-requests"] : []),
@@ -53,9 +53,7 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ["127.0.0.1"],
-  // output: "standalone" is required by @opennextjs/cloudflare but breaks Vercel.
-  // Enable it only during Cloudflare Pages builds (CF_PAGES is set automatically).
-  ...(process.env.CF_PAGES ? { output: "standalone" } : {}),
+  output: "standalone",
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }]
   },

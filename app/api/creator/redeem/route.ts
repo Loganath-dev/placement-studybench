@@ -4,7 +4,8 @@ import { rateLimit } from "@/lib/rate-limit"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { createClient } from "@/lib/supabase/server"
 
-const CODE_PATTERN = /^STUDYBENCH-[A-Z0-9]{5}-[A-Z0-9]{5}$/
+// New format from migration 0014: SB-XXXX-XXXX-XXXX (17 chars, e.g. SB-JVNQ-P9U4-KKWJ)
+const CODE_PATTERN = /^SB-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/
 
 export async function POST(request: Request) {
   const supabase = await createClient()

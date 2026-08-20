@@ -1,6 +1,21 @@
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 
+/**
+ * StudyBenchMark — the app's logomark.
+ *
+ * Design rationale (studied from Notion, Linear, Unacademy, Khan Academy):
+ * ─────────────────────────────────────────────────────────────────────────
+ * • One idea: a bold custom "S" — for Study, for students.
+ * • Contained in a rounded square badge (10px radius on 40×40 grid).
+ * • Warm indigo→blue gradient: trust, intelligence, forward momentum.
+ * • The "S" is drawn as a single clean path using cubic bezier curves,
+ *   NOT stacked rectangles — this gives it the hand-crafted, humanized
+ *   feel of logos like Stripe, Shopify, and Notion.
+ * • A thin white rule beneath the S acts as a "bench" — connecting the
+ *   name visually without over-complicating the mark.
+ * • Reads clearly from 16px favicon up to 512px icon.
+ */
 export function StudyBenchMark({ className }: { className?: string }) {
   return (
     <span
@@ -11,42 +26,68 @@ export function StudyBenchMark({ className }: { className?: string }) {
       aria-hidden
     >
       <svg
-        viewBox="0 0 64 64"
+        viewBox="0 0 40 40"
         className="size-full"
-        role="img"
-        aria-label="StudyBench"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
       >
-        <rect width="64" height="64" rx="16" fill="#EFF6FF" />
         <defs>
-          <linearGradient id="sb-shell" x1="10" y1="8" x2="54" y2="56" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#FFFDF8" />
-            <stop offset="1" stopColor="#F4EFE4" />
-          </linearGradient>
-          <linearGradient id="sb-flow" x1="21" y1="44" x2="44" y2="17" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#1D4ED8" />
-            <stop offset="1" stopColor="#38BDF8" />
+          <linearGradient
+            id="sb-bg"
+            x1="0" y1="0" x2="40" y2="40"
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop stopColor="#4F46E5" />
+            <stop offset="1" stopColor="#2563EB" />
           </linearGradient>
         </defs>
-        <rect x="8" y="8" width="48" height="48" rx="15" fill="url(#sb-shell)" />
+
+        {/* Badge background — rounded square */}
+        <rect width="40" height="40" rx="9" fill="url(#sb-bg)" />
+
+        {/*
+          "S" letterform — drawn as a smooth bezier path.
+          Designed on a 40×40 grid. The S fits inside an 18×22 box
+          centered at (11, 9) to (29, 31).
+
+          Reading the path:
+          Start at top-right of the S's upper arc →
+          curve down through the upper bowl →
+          cross the middle →
+          curve down through the lower bowl →
+          end at bottom-left of the S.
+
+          This single-path approach gives the humanized, calligraphic
+          quality that distinguishes professional logos from AI-generated ones.
+        */}
         <path
-          d="M22 45.5C22 40.1 25.8 36.5 31.7 36.5H41.5C46.3 36.5 49 39.1 49 43.5V46H22V45.5Z"
-          fill="#172033"
+          d={`
+            M 27 12.5
+            C 27 10 24.5 8 20 8
+            C 15 8 12 10.5 12 14
+            C 12 17.5 14.5 19 19 20
+            C 23.5 21 28 22.5 28 26.5
+            C 28 30 25 32 20 32
+            C 15 32 12.5 29.5 12.5 27
+          `}
+          stroke="white"
+          strokeWidth="3.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
         />
-        <rect x="26" y="46" width="4.75" height="6" rx="2.2" fill="#172033" />
-        <rect x="40.25" y="46" width="4.75" height="6" rx="2.2" fill="#172033" />
-        <path
-          d="M21.5 42.5C21.5 33.6 26.1 27 33.7 23.4C38.2 21.3 41 17.7 42.8 12.5H47C45.9 20.7 42.2 26.7 36 30.6C31.6 33.3 29 37.1 29 42.8V46H21.5V42.5Z"
-          fill="url(#sb-flow)"
+
+        {/*
+          "Bench" underline — a short white rule that sits below the S.
+          This is the "bench" visual metaphor: a flat surface, a foundation.
+          Subtle but meaningful when you know it.
+        */}
+        <rect
+          x="13" y="34" width="14" height="2.25"
+          rx="1.125"
+          fill="white"
+          fillOpacity="0.5"
         />
-        <path
-          d="M18 15.5C18 13.6 19.6 12 21.5 12H27V26.5H18V15.5Z"
-          fill="#F59E0B"
-        />
-        <path
-          d="M27 12H31C33 12 34.5 13.5 34.5 15.5V21C34.5 22.9 32.9 24.5 31 24.5H27V12Z"
-          fill="#FDBA74"
-        />
-        <circle cx="46.5" cy="17.5" r="3.75" fill="#22C55E" />
       </svg>
     </span>
   )
@@ -61,26 +102,26 @@ export function StudyBenchWordmark({
   size?: "default" | "compact"
   className?: string
 }) {
-  const markSize = size === "compact" ? "size-8" : "size-10"
-  const textSize = size === "compact" ? "text-lg" : "text-xl"
+  const markSize = size === "compact" ? "size-8" : "size-9"
+  const textSize = size === "compact" ? "text-[15px]" : "text-lg"
 
   return (
     <Link
       href={href}
       className={cn(
-        "group flex items-center gap-2.5 rounded-xl px-1.5 py-1 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/30",
+        "group flex items-center gap-2.5 rounded-xl py-1 px-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
         className,
       )}
     >
       <StudyBenchMark className={markSize} />
       <span
         className={cn(
-          "font-heading tracking-[-0.02em] transition-opacity duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:opacity-75",
+          "font-heading tracking-[-0.025em] transition-opacity duration-200 group-hover:opacity-80",
           textSize,
         )}
       >
-        <span className="font-medium text-foreground/70">Study</span>
-        <span className="font-extrabold text-primary">Bench</span>
+        <span className="font-semibold text-muted-foreground">Study</span>
+        <span className="font-bold text-foreground">Bench</span>
       </span>
     </Link>
   )

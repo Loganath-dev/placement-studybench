@@ -54,6 +54,10 @@ export function ServedQuiz({ section, company }: { section?: string; company?: s
 
   React.useEffect(() => {
     let cancelled = false
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setState({ status: "loading" })
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPlaying(false)
     const params = new URLSearchParams()
     if (section && section !== "all") params.set("section", section)
     if (company) params.set("company", company)

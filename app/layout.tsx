@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next"
+import type { Metadata } from "next"
 import { Geist, Geist_Mono, Plus_Jakarta_Sans } from "next/font/google"
 import Script from "next/script"
 import { Analytics } from "@vercel/analytics/next"
@@ -106,7 +106,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="en-IN"
       suppressHydrationWarning
       className={cn(
         "antialiased",

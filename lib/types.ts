@@ -7,12 +7,6 @@ export type CompanyId =
   | "accenture"
   | "zoho"
   | "cognizant"
-  | "capgemini"
-  | "epam"
-  | "ibm"
-  | "unisys"
-  | "techmahindra"
-  | "hcltech"
   | "general"
 
 export type SectionId =
@@ -202,7 +196,7 @@ export interface CodingProblem extends ContentReviewMeta {
   inputFormat: string
   outputFormat: string
   constraints: string[]
-  starterCode: string
+  solution: string
   testCases: CodingTestCase[]
   editorial: string
   estimatedMinutes: number
@@ -297,7 +291,6 @@ export interface AppState {
   xp: number
   streak: { count: number; lastActive: string }
   badges: string[]
-  goals: { dailyXp: number; targetXp: number; lastUpdated: string }
   progress: Record<string, CompanyProgress>
   /** Topic accuracy aggregated across all quizzes — powers weak/strong topics. */
   topicStats: Record<string, TopicStat>

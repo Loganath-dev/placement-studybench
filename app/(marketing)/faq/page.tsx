@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next"
+import type { Metadata } from "next"
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Icon } from "@/components/app/icon"
@@ -8,16 +8,30 @@ import { FAQS, faqJsonLd, type FaqItem } from "@/lib/content/faq"
 import { SITE_URL } from "@/lib/content/blocks"
 
 export const metadata: Metadata = {
-  title: "Frequently Asked Questions - StudyBench",
+  title: "Campus Placement Preparation FAQs | StudyBench",
   description:
-    "Answers to common questions about StudyBench: the Placement Readiness Index, pricing, content, step-by-step chapters, daily challenges and data protection.",
+    "Answers to the most-asked questions about campus placement preparation: how the Placement Readiness Index works, what's free vs Premium, company tracks, content sources and data privacy.",
   alternates: { canonical: `${SITE_URL}/faq` },
   openGraph: {
-    title: "StudyBench FAQ - Campus Placement Preparation",
+    title: "Campus Placement Preparation FAQs | StudyBench",
     description:
-      "How the Placement Readiness Index works, what's free vs Premium, how content is created, and how your data is protected.",
+      "How the PRI score works, what's free vs Premium, company tracks, original content policy and data protection — answered plainly.",
     type: "website",
     url: `${SITE_URL}/faq`,
+    images: [
+      {
+        url: `${SITE_URL}/opengraph-image`,
+        width: 1200,
+        height: 630,
+        alt: "StudyBench campus placement preparation FAQ",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Campus Placement Preparation FAQs | StudyBench",
+    description:
+      "How the PRI score works, what's free vs Premium, company tracks, and data protection — answered plainly.",
   },
 }
 

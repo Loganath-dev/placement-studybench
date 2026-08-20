@@ -40,6 +40,15 @@ export async function POST(request: Request) {
   // with backoff. Re-applying a signed activation is harmless because both the
   // ledger insert and the grant are idempotent.
 
+  if (eventName === "payment.refunded" || eventName === "refund.created") {
+    const refundPaymentId = event.payload?.payment?.entity?.id ?? event.payload?.refund?.entity?.payment_id
+    if (refundPaymentId) {
+      const admin = createAdminClient()
+      await admin.from("affiliate_commissions").update({ status: "refunded" }).eq("payment_id", refundPaymentId)
+    }
+    return NextResponse.json({ ok: true, event: eventName })
+  }
+
   if (eventName !== "payment.captured" && eventName !== "order.paid") {
     return NextResponse.json({ ok: true, event: eventName || "ignored" })
   }
@@ -83,6 +92,48 @@ export async function POST(request: Request) {
     }
 
     await grantPremiumYear(admin, userId)
+    
+    // Process affiliate commission if applicable.
+    try {
+      const { data: profile } = await admin
+        .from("profiles")
+        .select("referred_by")
+        .eq("id", userId)
+        .maybeSingle()
+
+      if (profile?.referred_by && profile.referred_by !== userId) {
+        const { data: settings } = await admin
+          .from("affiliate_settings")
+          .select("*")
+          .eq("id", 1)
+          .maybeSingle()
+
+        if (settings?.is_enabled) {
+          const commissionRate = settings.default_commission_rate
+          const paymentAmount = amount ?? PREMIUM_PRICE_INR * 100
+          const commissionAmount = Math.floor(paymentAmount * (commissionRate / 100))
+          const eligibleDate = new Date()
+          eligibleDate.setDate(eligibleDate.getDate() + settings.waiting_period_days)
+          
+          // Idempotent upsert — webhook + verify can both fire for the same payment.
+          // ON CONFLICT DO NOTHING ensures the second call is a silent no-op rather
+          // than an accidental swallowed unique-constraint exception.
+          await admin.from("affiliate_commissions").upsert({
+            referrer_id: profile.referred_by,
+            buyer_id: userId,
+            payment_id: paymentId,
+            payment_amount: paymentAmount,
+            commission_amount: commissionAmount,
+            commission_rate: commissionRate,
+            eligible_date: eligibleDate.toISOString(),
+            status: "pending",
+          }, { onConflict: "payment_id", ignoreDuplicates: true })
+        }
+      }
+    } catch (affiliateError) {
+      captureError(affiliateError, { scope: "razorpay/webhook", stage: "affiliate", userId, paymentId })
+    }
+
     logger.info("[webhook] premium activation handled", { event: eventName, userId })
     return NextResponse.json({ ok: true, event: eventName })
   } catch (error) {

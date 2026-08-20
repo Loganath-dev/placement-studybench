@@ -12,6 +12,7 @@ import { AuthShell, GoogleButton, OrDivider } from "@/components/app/auth-shared
 import { track } from "@/lib/analytics"
 import { createClient } from "@/lib/supabase/client"
 
+
 const MIN_PASSWORD = 6
 
 export default function SignupPage() {
@@ -22,7 +23,6 @@ export default function SignupPage() {
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const [sent, setSent] = React.useState(false)
-
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -49,7 +49,10 @@ export default function SignupPage() {
       email_confirmation_required: !Boolean(data.session),
     })
     // If email confirmation is off, a session is returned and the user enters the app.
-    if (data.session) {
+    if (data.session && data.user) {
+      await supabase.from("profiles").insert({
+        id: data.user.id,
+      })
       router.push("/onboarding")
       router.refresh()
     } else {
@@ -77,8 +80,17 @@ export default function SignupPage() {
   }
 
   return (
-    <AuthShell title="Create your account" subtitle="It takes a minute to set up your prep route.">
+    <AuthShell
+      title="Start your placement prep free"
+      subtitle="No card needed. Create your account and jump into your first company chapter."
+    >
       <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+        <div className="mb-4 grid gap-2 rounded-xl border border-primary/15 bg-primary/5 p-3 text-sm">
+          <p className="font-medium text-foreground">What you get immediately</p>
+          <p className="text-muted-foreground">
+            Company tracks, starter chapters, sample PYQs, one mock baseline and a readiness score.
+          </p>
+        </div>
         <GoogleButton label="Sign up with Google" source="signup" />
         <div className="my-4">
           <OrDivider />

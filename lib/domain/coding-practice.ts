@@ -27,7 +27,7 @@ export function codingFeedback(results: CodingRunResult[], companyId: CompanyId)
 }
 
 export function solveSignature(problem: CodingProblem): string {
-  const match = problem.starterCode.match(/function\s+solve\s*\(([^)]*)\)/)
+  const match = problem.solution.match(/function\s+solve\s*\(([^)]*)\)/)
   const params = match?.[1]?.trim()
   return `Use: function solve(${params ?? "input"}) { ... return answer }`
 }

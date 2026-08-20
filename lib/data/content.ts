@@ -2659,8 +2659,99 @@ const EXTRA_CHAPTERS: Partial<Record<SectionId, Chapter[]>> = {
   "comm-interview": [commResumeProjects, commApplicationsDrive, commInterviewCapstone],
 }
 
-const CHAPTER_QUIZ_TARGET = 450
+export const CHAPTER_QUIZ_TOTAL_PER_TRACK = 5000
 export const CHAPTER_PRACTICE_TARGET = 1200
+
+// Verified against the current hiring emphasis reflected across official company
+// assessment/careers pages plus public sample-assessment material where the
+// company publishes it. We keep the ratios here so each track can stay capped
+// at 5000 chapter-quiz questions while still biasing toward what matters most
+// for that recruiter.
+const COMPANY_CHAPTER_QUIZ_SECTION_WEIGHTS: Record<CompanyId, Record<SectionId, number>> = {
+  tcs: { quant: 270, reasoning: 240, verbal: 210, coding: 255, "cs-core": 195, "comm-interview": 225 },
+  infosys: { quant: 270, reasoning: 240, verbal: 210, coding: 285, "cs-core": 195, "comm-interview": 225 },
+  wipro: { quant: 255, reasoning: 225, verbal: 270, coding: 225, "cs-core": 180, "comm-interview": 270 },
+  accenture: { quant: 240, reasoning: 255, verbal: 225, coding: 210, "cs-core": 315, "comm-interview": 270 },
+  zoho: { quant: 165, reasoning: 165, verbal: 105, coding: 780, "cs-core": 255, "comm-interview": 210 },
+  cognizant: { quant: 255, reasoning: 255, verbal: 225, coding: 270, "cs-core": 225, "comm-interview": 255 },
+  general: { quant: 300, reasoning: 285, verbal: 255, coding: 330, "cs-core": 285, "comm-interview": 300 },
+}
+
+const MIN_CHAPTER_QUIZ_TARGET = 45
+
+function sectionQuizTargets(companyId: CompanyId): Record<SectionId, number> {
+  // Guard: if a stale/removed companyId somehow reaches here (e.g. old
+  // "ibm" stored in localStorage), fall back to "general" weights so we
+  // never crash with Object.values(undefined).
+  const weights = COMPANY_CHAPTER_QUIZ_SECTION_WEIGHTS[companyId] ?? COMPANY_CHAPTER_QUIZ_SECTION_WEIGHTS["general"]
+  const totalWeight = Object.values(weights).reduce((sum, value) => sum + value, 0)
+  const sections = Object.keys(weights) as SectionId[]
+  let allocated = 0
+
+  return sections.reduce(
+    (acc, sectionId, index) => {
+      const target =
+        index === sections.length - 1
+          ? CHAPTER_QUIZ_TOTAL_PER_TRACK - allocated
+          : Math.round((weights[sectionId] / totalWeight) * CHAPTER_QUIZ_TOTAL_PER_TRACK)
+      allocated += target
+      acc[sectionId] = target
+      return acc
+    },
+    {} as Record<SectionId, number>,
+  )
+}
+
+function chapterQuizTargets(
+  companyId: CompanyId,
+  section: Section,
+): Record<string, number> {
+  const sectionTarget = sectionQuizTargets(companyId)[section.id]
+  const lessonWeights = section.chapters.map((chapter) => Math.max(chapter.lessons.length, 1))
+  const minRequired = MIN_CHAPTER_QUIZ_TARGET * section.chapters.length
+  const baseline = Math.min(MIN_CHAPTER_QUIZ_TARGET, Math.floor(sectionTarget / section.chapters.length))
+  const distributable = Math.max(0, sectionTarget - baseline * section.chapters.length)
+  const totalLessonWeight = lessonWeights.reduce((sum, value) => sum + value, 0)
+
+  const provisional = section.chapters.map((chapter, index) => {
+    const raw = totalLessonWeight === 0 ? 0 : (lessonWeights[index] / totalLessonWeight) * distributable
+    const extra = Math.floor(raw)
+    return {
+      chapterId: chapter.id,
+      target: baseline + extra,
+      remainder: raw - extra,
+    }
+  })
+
+  let allocated = provisional.reduce((sum, item) => sum + item.target, 0)
+  if (sectionTarget >= minRequired) {
+    provisional.forEach((item) => {
+      if (item.target < MIN_CHAPTER_QUIZ_TARGET) {
+        allocated += MIN_CHAPTER_QUIZ_TARGET - item.target
+        item.target = MIN_CHAPTER_QUIZ_TARGET
+        item.remainder = 0
+      }
+    })
+  }
+
+  const ordered = [...provisional].sort(
+    (a, b) => b.remainder - a.remainder || a.chapterId.localeCompare(b.chapterId),
+  )
+
+  let remaining = sectionTarget - allocated
+  for (let i = 0; i < ordered.length && remaining > 0; i++) {
+    ordered[i].target += 1
+    remaining -= 1
+  }
+
+  return provisional.reduce(
+    (acc, item) => {
+      acc[item.chapterId] = item.target
+      return acc
+    },
+    {} as Record<string, number>,
+  )
+}
 
 function stableSeed(input: string): number {
   let hash = 2166136261
@@ -2727,52 +2818,40 @@ const GENERAL_SECTION_SOURCE: Record<SectionId, string> = {
   "comm-interview": "studybench-curriculum",
 }
 
-const SECTION_BOOSTER_COPY: Record<SectionId, { hard: string; revise: string; mock: string }> = {
+const SECTION_BOOSTER_COPY: Record<SectionId, { hard: string; mock: string }> = {
   quant: {
     hard:
       "For hard aptitude questions, first identify the base value and formula, then estimate the answer before doing exact arithmetic. If the calculation is long, use options to eliminate impossible values.",
-    revise:
-      "Build a one-page sheet with formulas, shortcut fractions, unit conversions and your top mistakes. Revise it before every mock so recall becomes automatic under time pressure.",
     mock:
       "In mocks, do not spend more than 90 seconds on a stuck quant question. Mark it mentally, move on, and return only if the section timer leaves room.",
   },
   reasoning: {
     hard:
       "For hard reasoning, convert words into diagrams: slots, circles, arrows, tables or cases. A messy diagram is still better than solving a puzzle only in your head.",
-    revise:
-      "Your revision sheet should contain common clue translations: immediately right, somewhere right, all/some/no, exactly two between, clockwise and anticlockwise.",
     mock:
       "In mocks, solve fixed-clue puzzles first and leave case-heavy puzzles for later. Reasoning rewards clean setup more than speed guessing.",
   },
   verbal: {
     hard:
       "For hard verbal questions, check grammar and meaning together. In RC, select only what the passage supports; avoid answers that are true in real life but not stated or implied.",
-    revise:
-      "Keep a revision sheet of agreement rules, fixed prepositions, confusable words, tone words and RC traps. Re-read wrong explanations instead of memorising word lists.",
     mock:
       "In verbal mocks, answer direct grammar first, then RC. Do not reread the entire passage for every question; scan back to the relevant line.",
   },
   coding: {
     hard:
       "For hard coding, state inputs, constraints, brute force, optimized idea, edge cases and complexity before writing code. Hidden tests usually target edge cases, not the sample path.",
-    revise:
-      "Keep a revision sheet of patterns: hashing, two pointers, sliding window, prefix sums, stack, queue, BFS, DFS and recursion base cases.",
     mock:
       "In coding mocks, solve for correctness first, then optimize. Test empty input, one item, duplicates, negatives and large values before submission.",
   },
   "cs-core": {
     hard:
       "For hard CS-core questions, answer with definition, example and trade-off. Recruiters want proof that you understand the concept beyond a keyword.",
-    revise:
-      "Create flash notes for DBMS, OS, CN, OOP, SQL, web, cloud, security and testing. Each note should have one example and one common trap.",
     mock:
       "In technical mocks, do not over-explain the first concept. Give a crisp answer, then add a practical example if the interviewer asks deeper.",
   },
   "comm-interview": {
     hard:
       "For hard communication questions, stay specific and evidence-based. Use STAR for behavioural answers and avoid blaming teammates or giving memorised slogans.",
-    revise:
-      "Keep a sheet with self-intro points, project highlights, strengths, weakness-improvement example, GD openers and closing questions for the interviewer.",
     mock:
       "In interview mocks, record yourself once. Check clarity, filler words, answer length and whether each answer has one concrete example.",
   },
@@ -2790,14 +2869,6 @@ function enrichChapterForPlacement(sectionId: SectionId, chapter: Chapter): Chap
       minutes: 4,
       body:
         `${copy.hard}\n\n**Why recruiters test this:** hard questions measure whether you can slow down, structure the problem and avoid panic, not only whether you remember a formula.`,
-      sourceIds: [sourceId],
-    },
-    {
-      id: `boost-${chapter.id}-revision`,
-      title: `Revision sheet for ${chapter.title}`,
-      minutes: 4,
-      body:
-        `${copy.revise}\n\n**Fast revision loop:** before a mock, revise formulas or rules for 5 minutes, solve 5 mixed questions, then review only mistakes.`,
       sourceIds: [sourceId],
     },
     {
@@ -2824,22 +2895,6 @@ function enrichChapterForPlacement(sectionId: SectionId, chapter: Chapter): Chap
       ],
       answer: 0,
       explanation: "Hard questions become manageable when you classify the type, constraints and method before calculating or coding.",
-      sourceId,
-      curated: true,
-    },
-    {
-      id: `boost-q-${chapter.id}-revision`,
-      topic: `${chapter.title} Revision`,
-      difficulty: "medium",
-      prompt: `What belongs in a useful ${chapter.title} revision sheet?`,
-      options: [
-        "Key rules, formulas, traps and personal mistakes",
-        "Only motivational quotes",
-        "Only solved questions with no notes",
-        "Random topics from other sections",
-      ],
-      answer: 0,
-      explanation: "A good revision sheet compresses rules, formulas, traps and mistakes so recall is fast before mocks.",
       sourceId,
       curated: true,
     },
@@ -3090,8 +3145,12 @@ function ensureDifficultyCoverage(
   return next
 }
 
-function expandChapterQuiz(companyId: CompanyId, sectionId: SectionId, chapter: Chapter): Chapter {
-  const target = CHAPTER_QUIZ_TARGET
+function expandChapterQuiz(
+  companyId: CompanyId,
+  sectionId: SectionId,
+  chapter: Chapter,
+  target: number,
+): Chapter {
   const missing = Math.max(0, target - chapter.quiz.length)
   if (missing === 0) {
     return {
@@ -3133,21 +3192,36 @@ export function getSections(companyId: CompanyId): Section[] {
   const cached = sectionCache.get(companyId)
   if (cached) return cached
 
+  // Guard: unknown/removed company ids (e.g. stale "ibm" from old localStorage)
+  // fall back to the general track so the app never crashes on bad input.
+  const safeId: CompanyId = (companyId in COMPANY_CHAPTER_QUIZ_SECTION_WEIGHTS)
+    ? companyId
+    : "general"
+
   const base = withExtras(BASE_SECTIONS)
   const companySections =
-    companyId === "zoho"
+    safeId === "zoho"
       ? base.map((s) =>
           s.id === "coding" ? { ...s, chapters: [...s.chapters, ZOHO_EXTRA] } : s,
         )
       : base
 
-  const sections = companySections.map((section) => ({
-    ...section,
-    chapters: section.chapters.map((chapter) => {
-      const baseChapter = companyId === "general" ? enrichGeneralChapter(chapter) : chapter
-      return expandChapterQuiz(companyId, section.id, enrichChapterForPlacement(section.id, baseChapter))
-    }),
-  }))
+  const sections = companySections.map((section) => {
+    const chapterTargets = chapterQuizTargets(safeId, section)
+    return {
+      ...section,
+      chapters: section.chapters.map((chapter) => {
+        const baseChapter = safeId === "general" ? enrichGeneralChapter(chapter) : chapter
+        const enrichedChapter = enrichChapterForPlacement(section.id, baseChapter)
+        return expandChapterQuiz(
+          safeId,
+          section.id,
+          enrichedChapter,
+          chapterTargets[chapter.id] ?? MIN_CHAPTER_QUIZ_TARGET,
+        )
+      }),
+    }
+  })
   sectionCache.set(companyId, sections)
   return sections
 }
@@ -3228,6 +3302,13 @@ export function chapterPracticeQuestions(
 
 export function totalChapters(companyId: CompanyId): number {
   return getSections(companyId).reduce((n, s) => n + s.chapters.length, 0)
+}
+
+export function totalChapterQuizQuestions(companyId: CompanyId): number {
+  return getSections(companyId).reduce(
+    (sectionSum, section) => sectionSum + section.chapters.reduce((chapterSum, chapter) => chapterSum + chapter.quiz.length, 0),
+    0,
+  )
 }
 
 export function companyTagline(companyId: CompanyId): string {

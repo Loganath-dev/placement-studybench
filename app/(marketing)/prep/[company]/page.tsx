@@ -65,7 +65,7 @@ function qaPageJsonLd(companyId: CompanyId) {
   return {
     "@context": "https://schema.org",
     "@type": "QAPage",
-    name: `${company.name} Placement Preparation — Sample Questions`,
+    name: `${company.name} Placement Preparation - Sample Questions`,
     description: `Practice questions and answers for ${company.name} campus placement preparation.`,
     url: `${SITE_URL}/prep/${companyId}`,
     mainEntity: sampleQuestions.map((item) => ({
@@ -148,8 +148,22 @@ export default async function PrepCompanyPage({
           {company.name} Placement Preparation 2026
         </h1>
         <p className="text-lg leading-relaxed text-muted-foreground">
-          {company.blurb} — eligibility, exam pattern, and sample practice questions.
+          {company.blurb} - eligibility, exam pattern, and sample practice questions.
         </p>
+        <div className="flex flex-wrap gap-2 pt-2">
+          <Link
+            href={`/auth/signup?company=${company.id}`}
+            className="inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
+          >
+            Start {company.short} prep free <Icon name="ArrowRight" className="size-4" />
+          </Link>
+          <Link
+            href={`/auth/signup?company=${company.id}&next=mock`}
+            className="inline-flex items-center gap-1.5 rounded-full border border-border px-5 py-2.5 text-sm font-semibold hover:bg-muted/50"
+          >
+            Try a {company.short} mock
+          </Link>
+        </div>
       </header>
 
       {/* Eligibility */}

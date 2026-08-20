@@ -13,8 +13,10 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import { LaunchOffer } from "@/components/app/launch-offer"
 import { useLevel, useStoreActions, useStoreState } from "@/lib/store"
 import { cn } from "@/lib/utils"
+import { createClient } from "@/lib/supabase/client"
 
 export interface NavItem {
   href: string
@@ -23,19 +25,18 @@ export interface NavItem {
 }
 
 /**
- * Keep navigation close to the study loop so students spend less time choosing
- * a destination and more time preparing.
+ * Primary navigation grouped into four zones (Plan / Learn / Practice / Review)
+ * so the sidebar reads as an intentional workflow instead of a flat 12-item list.
  */
 export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: "Today",
-    items: [{ href: "/dashboard", label: "Study plan", icon: "LayoutDashboard" }],
+    items: [{ href: "/dashboard", label: "Dashboard", icon: "LayoutDashboard" }],
   },
   {
     label: "Learn",
     items: [
-      { href: "/learn", label: "Company tracks", icon: "GraduationCap" },
-      { href: "/revision", label: "Revision", icon: "BookMarked" },
+      { href: "/learn", label: "Tracks", icon: "GraduationCap" },
     ],
   },
   {
@@ -43,14 +44,24 @@ export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     items: [
       { href: "/practice", label: "PYQs", icon: "BookOpen" },
       { href: "/coding", label: "Coding", icon: "Code2" },
-      { href: "/mock", label: "Mocks", icon: "Target" },
+      { href: "/mock", label: "Mock Tests", icon: "Target" },
+      { href: "/interview", label: "Interview", icon: "Mic" },
+    ],
+  },
+  {
+    label: "Placement Skills",
+    items: [
+      { href: "/gd", label: "Group Discussion", icon: "Users" },
+      { href: "/communication", label: "Communication", icon: "MessageSquare" },
+      { href: "/resume", label: "Resume Guide", icon: "FileText" },
     ],
   },
   {
     label: "Review",
     items: [
-      { href: "/mistakes", label: "Mistakes", icon: "BookMarked" },
-      { href: "/readiness", label: "Progress", icon: "TrendingUp" },
+      { href: "/readiness", label: "Readiness", icon: "TrendingUp" },
+      { href: "/analytics", label: "Analytics", icon: "ChartColumn" },
+      { href: "/bookmarks", label: "Bookmarks", icon: "Bookmark" },
     ],
   },
 ]
@@ -112,13 +123,23 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname()
   const router = useRouter()
   const { signOut } = useStoreActions()
+  const [isAdmin, setIsAdmin] = React.useState(false)
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(href + "/")
+
+  React.useEffect(() => {
+    createClient()
+      .auth.getUser()
+      .then(({ data }: { data: { user: { email?: string } | null } }) => {
+        const email = data?.user?.email ?? ""
+        const knownAdminDomains = ["lnath6630@gmail.com", "studybench07@gmail.com"]
+        setIsAdmin(knownAdminDomains.includes(email.toLowerCase()))
+      })
+  }, [])
 
   async function handleSignOut() {
     onNavigate?.()
     await signOut()
-    router.push("/auth/login")
   }
 
   return (
@@ -156,7 +177,36 @@ export function AppSidebar() {
         <Brand />
       </div>
       <NavList />
+      <PremiumNudge />
     </aside>
+  )
+}
+
+function PremiumNudge() {
+  const { state } = useStoreState()
+  if (state.premium) {
+    return (
+      <div className="rounded-lg border border-success/30 bg-success/10 p-3 text-xs">
+        <p className="flex items-center gap-1.5 font-semibold text-[color:var(--success)]">
+          <Icon name="Crown" className="size-3.5" /> Premium active
+        </p>
+        <p className="mt-1 text-muted-foreground">All tracks unlocked. Good luck!</p>
+      </div>
+    )
+  }
+  return (
+    <Link
+      href="/settings"
+      className="block rounded-lg border border-primary/20 bg-background/70 p-3 text-xs transition-colors hover:bg-primary/10"
+    >
+      <p className="flex items-center gap-1.5 font-semibold text-primary">
+        <Icon name="Crown" className="size-3.5" /> Premium
+      </p>
+      <p className="mt-1 text-muted-foreground">
+        Unlock every section, chapter and practice bank.
+      </p>
+      <LaunchOffer variant="compact" className="mt-1.5" />
+    </Link>
   )
 }
 

@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import type { Session, User } from "@supabase/supabase-js"
+import type { Session } from "@supabase/supabase-js"
 import { createClient } from "@/lib/supabase/client"
 import {
   deleteAllMistakes,
@@ -14,7 +14,6 @@ import {
   syncDaily,
   syncMistakeSchedule,
   syncOneMistake,
-  syncOnboardingComplete,
   syncOutcome,
   syncProfile,
   syncUserState,
@@ -31,42 +30,12 @@ import type {
 import { levelFromXP, XP } from "@/lib/scoring"
 import { nextSchedule } from "@/lib/spaced-repetition"
 import { identifyAnalyticsUser, track } from "@/lib/analytics"
+import { COMPANIES } from "@/lib/data/companies"
 
 const MISTAKE_CAP = 60
 
 const STORAGE_KEY = "studybench.state.v1"
 const LEGACY_STORAGE_KEY = "placeready.state.v1"
-const HYDRATION_TIMEOUT_MS = 8_000
-
-function withTimeout<T>(
-  promise: Promise<T>,
-  timeoutMs: number,
-  label: string,
-): Promise<T> {
-  let timer: ReturnType<typeof setTimeout> | undefined
-
-  const timeout = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => {
-      reject(new Error(`${label} timed out after ${timeoutMs}ms`))
-    }, timeoutMs)
-  })
-
-  return Promise.race([promise, timeout]).finally(() => {
-    if (timer) clearTimeout(timer)
-  })
-}
-
-function fetchWithTimeout(
-  input: RequestInfo | URL,
-  init: RequestInit = {},
-  timeoutMs = HYDRATION_TIMEOUT_MS,
-): Promise<Response> {
-  const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), timeoutMs)
-  return fetch(input, { ...init, signal: controller.signal }).finally(() => {
-    clearTimeout(timer)
-  })
-}
 
 const DEFAULT_STATE: AppState = {
   onboarded: false,
@@ -79,7 +48,6 @@ const DEFAULT_STATE: AppState = {
   xp: 0,
   streak: { count: 0, lastActive: "" },
   badges: [],
-  goals: { dailyXp: 0, targetXp: 50, lastUpdated: "" },
   progress: {},
   topicStats: {},
   daily: { date: "", general: false, aptitude: false, coding: false },
@@ -93,6 +61,19 @@ function normalizeEntitlement(state: AppState): AppState {
   const expiresAt = Date.parse(state.premiumUntil)
   if (!Number.isFinite(expiresAt) || expiresAt > Date.now()) return state
   return { ...state, premium: false, premiumUntil: undefined }
+}
+
+/**
+ * Strip any company IDs that no longer exist in the active company list.
+ * This prevents crashes when a user's stored state still references a removed
+ * company (e.g. old "ibm" persisted in localStorage or Supabase).
+ */
+const ACTIVE_COMPANY_IDS = new Set(COMPANIES.map((c) => c.id))
+function sanitizeCompanyIds(state: AppState): AppState {
+  const primary = ACTIVE_COMPANY_IDS.has(state.primary) ? state.primary : "general"
+  const interested = (state.interested ?? []).filter((id) => ACTIVE_COMPANY_IDS.has(id))
+  if (primary === state.primary && interested.length === (state.interested ?? []).length) return state
+  return { ...state, primary, interested }
 }
 
 function today(): string {
@@ -118,22 +99,6 @@ function ensureProgress(state: AppState, id: CompanyId) {
   return state.progress[id]
 }
 
-function awardXp(state: AppState, amount: number) {
-  if (amount <= 0) return
-  state.xp += amount
-  
-  const t = today()
-  if (state.goals.lastUpdated !== t) {
-    state.goals.dailyXp = 0
-    state.goals.lastUpdated = t
-  }
-  state.goals.dailyXp += amount
-  
-  if (state.goals.dailyXp >= state.goals.targetXp) {
-    if (!state.badges.includes("goal-crusher")) state.badges.push("goal-crusher")
-  }
-}
-
 function bumpStreak(state: AppState): number {
   const t = today()
   let milestoneXp = 0
@@ -141,19 +106,10 @@ function bumpStreak(state: AppState): number {
   const prev = state.streak.count
   const count = state.streak.lastActive === yesterday(t) ? prev + 1 : 1
   state.streak = { count, lastActive: t }
-  if (count === 7 && prev < 7) {
-    milestoneXp = XP.streak7
-    if (!state.badges.includes("streak-7")) state.badges.push("streak-7")
-  }
-  if (count === 30 && prev < 30) {
-    milestoneXp = XP.streak30
-    if (!state.badges.includes("streak-30")) state.badges.push("streak-30")
-  }
-  if (count === 100 && prev < 100) {
-    milestoneXp = XP.streak100
-    if (!state.badges.includes("streak-100")) state.badges.push("streak-100")
-  }
-  awardXp(state, milestoneXp)
+  if (count === 7 && prev < 7) milestoneXp = XP.streak7
+  if (count === 30 && prev < 30) milestoneXp = XP.streak30
+  if (count === 100 && prev < 100) milestoneXp = XP.streak100
+  state.xp += milestoneXp
   return milestoneXp
 }
 
@@ -241,7 +197,15 @@ const StoreSubscriptionContext = React.createContext<StoreSubscriptionValue | nu
 // ── Provider ─────────────────────────────────────────────────────────────────
 
 export function AppStoreProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = React.useState<AppState>(DEFAULT_STATE)
+  const [state, _setState] = React.useState<AppState>(DEFAULT_STATE)
+  const stateRef = React.useRef<AppState>(state)
+
+  const setState = React.useCallback((val: React.SetStateAction<AppState>) => {
+    const next = typeof val === "function" ? (val as (prevState: AppState) => AppState)(stateRef.current) : val
+    stateRef.current = next
+    _setState(next)
+  }, [])
+
   const [hydrated, setHydrated] = React.useState(false)
   const [userId, setUserId] = React.useState<string | null>(null)
   const [userCreatedAt, setUserCreatedAt] = React.useState<string | null>(null)
@@ -252,113 +216,81 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     userCreatedAt: null,
   })
   const listenersRef = React.useRef(new Set<() => void>())
-  const skipPersistRef = React.useRef(false)
-
-  function readCachedState(): AppState | null {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_STORAGE_KEY)
-      if (!raw) return null
-      const parsed = normalizeEntitlement({ ...DEFAULT_STATE, ...JSON.parse(raw) })
-      if (!localStorage.getItem(STORAGE_KEY)) {
-        localStorage.setItem(STORAGE_KEY, raw)
-        localStorage.removeItem(LEGACY_STORAGE_KEY)
-      }
-      return parsed
-    } catch {
-      return null
-    }
-  }
 
   // ── hydrate: localStorage first (fast), then Supabase (authoritative) ──
   React.useEffect(() => {
-    let cancelled = false
-
-    async function applyRemoteState(user: User) {
-      const [remoteResult, statusResult] = await Promise.allSettled([
-        withTimeout(loadUserState(user.id), HYDRATION_TIMEOUT_MS, "Supabase state"),
-        fetchWithTimeout("/api/premium/status", { cache: "no-store" }),
-      ])
-      if (cancelled) return
-
-      const remote = remoteResult.status === "fulfilled" ? remoteResult.value : null
-      if (remote) {
-        const normalized = normalizeEntitlement({ ...DEFAULT_STATE, ...remote })
-        // Repair DB rows for users whose onboarding flag was lost to a race.
-        if (normalized.onboarded) {
-          void syncUserState(user.id, normalized)
-        }
-        if (statusResult.status === "fulfilled" && statusResult.value.ok) {
-          try {
-            const entitlement = (await statusResult.value.json()) as {
-              premium: boolean
-              premiumUntil: string | null
-              source: "creator" | "purchase" | "free"
-            }
-            if (cancelled) return
-            setState({
-              ...normalized,
-              premium: entitlement.premium,
-              premiumUntil: entitlement.premiumUntil ?? undefined,
-              entitlementSource: entitlement.source,
-            })
-          } catch {
-            setState(normalized)
-          }
-        } else {
-          setState(normalized)
-        }
-      } else if (remoteResult.status === "fulfilled") {
-        // Brand-new user — seed rows without overwriting anything later.
-        await withTimeout(
-          ensureUserState(user.id, DEFAULT_STATE),
-          HYDRATION_TIMEOUT_MS,
-          "Supabase state initialization",
-        )
-      }
-    }
-
     async function hydrate() {
-      const cachedState = readCachedState()
+      // 1. Restore from localStorage immediately so UI doesn't flash blank.
+      let restoredFromCache = false
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_STORAGE_KEY)
+        if (raw) {
+          setState(sanitizeCompanyIds(normalizeEntitlement({ ...DEFAULT_STATE, ...JSON.parse(raw) })))
+          restoredFromCache = true
+          // Returning users can use the cached app immediately while Supabase
+          // refreshes in the background. This removes a full-network loader.
+          setHydrated(true)
+          if (!localStorage.getItem(STORAGE_KEY)) {
+            localStorage.setItem(STORAGE_KEY, raw)
+            localStorage.removeItem(LEGACY_STORAGE_KEY)
+          }
+        }
+      } catch {
+        /* ignore corrupt state */
+      }
 
-      // 1. Check Supabase session before applying any cached routing state.
+      // 2. Check Supabase session.
       const supabase = createClient()
-      const user = await withTimeout<{ data: { user: User | null } }>(
-        supabase.auth.getUser() as Promise<{ data: { user: User | null } }>,
-        HYDRATION_TIMEOUT_MS,
-        "Supabase auth",
-      )
-        .then((res) => res.data.user)
-        .catch(() => null)
-
-      if (cancelled) return
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
 
       if (user) {
-        skipPersistRef.current = false
         setUserId(user.id)
         setUserCreatedAt(user.created_at ?? null)
         identifyAnalyticsUser(user.id)
-
-        // Fast path: cache already says onboarded — show UI immediately while
-        // Supabase refreshes in the background. Never fast-path when
-        // onboarded=false; that value is often stale (sign-out race).
-        const canFastPath = cachedState?.onboarded === true
-        if (canFastPath && cachedState) {
-          setState(cachedState)
-          setHydrated(true)
-        }
-
+        // 3. Refresh state and entitlement concurrently; neither depends on the
+        // other and serializing them adds an avoidable network round trip.
         try {
-          await applyRemoteState(user)
+          const remotePromise = loadUserState(user.id)
+          const statusPromise = fetch("/api/premium/status", { cache: "no-store" }).catch(() => null)
+          const [remote, statusResponse] = await Promise.all([remotePromise, statusPromise])
+          
+          if (remote) {
+            const normalized = sanitizeCompanyIds(normalizeEntitlement({ ...DEFAULT_STATE, ...remote }))
+            void ensureUserState(user.id, normalized)
+            if (statusResponse && statusResponse.ok) {
+              const entitlement = (await statusResponse.json()) as {
+                premium: boolean
+                premiumUntil: string | null
+                source: "creator" | "purchase" | "free"
+              }
+              setState({
+                ...normalized,
+                premium: entitlement.premium,
+                premiumUntil: entitlement.premiumUntil ?? undefined,
+                entitlementSource: entitlement.source,
+              })
+            } else {
+              setState(normalized)
+            }
+          } else {
+            // `remote` is null only for brand-new users who have no rows in
+            // user_state yet. Seed their row so subsequent syncs have a target.
+            // ensureUserState uses a one-way ratchet on `onboarded`, so this
+            // is safe to call with DEFAULT_STATE (which has onboarded=false).
+            await ensureUserState(user.id, DEFAULT_STATE)
+          }
         } catch {
-          if (!canFastPath && cachedState) setState(cachedState)
+          /* offline — localStorage fallback stays */
         }
-
-        if (!canFastPath && !cancelled) setHydrated(true)
       } else {
         identifyAnalyticsUser(null)
-        if (cachedState) setState(cachedState)
-        if (!cancelled) setHydrated(true)
       }
+
+      // First-time users have no safe cached routing state, so they wait for
+      // the authoritative load. Returning users were already released above.
+      if (!restoredFromCache) setHydrated(true)
     }
 
     void hydrate()
@@ -367,33 +299,12 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     const supabase = createClient()
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event: string, session: Session | null) => {
-      if (cancelled) return
-      const nextUserId = session?.user?.id ?? null
-      setUserId(nextUserId)
+    } = supabase.auth.onAuthStateChange((_event: string, session: Session | null) => {
+      setUserId(session?.user?.id ?? null)
       setUserCreatedAt(session?.user?.created_at ?? null)
-
-      // After email signup (no full reload) or OAuth return, pull authoritative
-      // state so onboarded/profile/targets survive the next sign-out.
-      if (event === "SIGNED_IN" && session?.user) {
-        skipPersistRef.current = false
-        identifyAnalyticsUser(session.user.id)
-        try {
-          await applyRemoteState(session.user)
-        } catch {
-          /* offline */
-        }
-      }
-
-      if (event === "SIGNED_OUT") {
-        skipPersistRef.current = true
-      }
     })
-    return () => {
-      cancelled = true
-      subscription.unsubscribe()
-    }
-  }, [])
+    return () => subscription.unsubscribe()
+  }, [setState])
 
   React.useEffect(() => {
     if (!hydrated || !state.premium || !state.premiumUntil) return
@@ -404,13 +315,12 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       setState((prev) => normalizeEntitlement(prev))
     }, delay)
     return () => clearTimeout(id)
-  }, [hydrated, state.premium, state.premiumUntil])
+  }, [hydrated, state.premium, state.premiumUntil, setState])
 
   // ── persist to localStorage, debounced so rapid mutations don't thrash ──
   React.useEffect(() => {
-    if (!hydrated || skipPersistRef.current) return
+    if (!hydrated) return
     const id = setTimeout(() => {
-      if (skipPersistRef.current) return
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
       } catch {
@@ -428,37 +338,31 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
 
   // mutate is stable (empty deps) — state is always read via setState(prev => ...)
   const mutate = React.useCallback(
-    <T,>(fn: (draft: AppState) => T, syncFn?: (uid: string, next: AppState) => void): T => {
-      let out!: T
-      let next!: AppState
-      setState((prev) => {
-        // Targeted shallow clone: top-level primitives copy by spread; every mutable
-        // nested collection gets its own new reference so prev state is never mutated.
-        // ensureProgress() deep-clones individual company progress on first touch.
-        // applyTopics() always writes new { correct, total } objects.
-        const draft: AppState = {
-          ...prev,
-          streak: { ...prev.streak },
-          profile: { ...prev.profile },
-          progress: { ...prev.progress },
-          topicStats: { ...prev.topicStats },
-          daily: { ...prev.daily },
-          mistakes: prev.mistakes ? [...prev.mistakes] : [],
-          outcomes: prev.outcomes ? [...prev.outcomes] : [],
-          codingAttempts: prev.codingAttempts ? [...prev.codingAttempts] : [],
-          badges: [...prev.badges],
-          goals: { ...prev.goals },
-          interested: [...prev.interested],
-        }
-        out = fn(draft)
-        next = draft
-        return draft
-      })
+    <T,>(fn: (draft: AppState) => T, syncFn?: (uid: string, next: AppState) => void | PromiseLike<void>): T => {
+      const prev = stateRef.current
+      const draft: AppState = {
+        ...prev,
+        streak: { ...prev.streak },
+        profile: { ...prev.profile },
+        progress: { ...prev.progress },
+        topicStats: { ...prev.topicStats },
+        daily: { ...prev.daily },
+        mistakes: prev.mistakes ? [...prev.mistakes] : [],
+        outcomes: prev.outcomes ? [...prev.outcomes] : [],
+        codingAttempts: prev.codingAttempts ? [...prev.codingAttempts] : [],
+        badges: [...prev.badges],
+        interested: [...prev.interested],
+      }
+      
+      const out = fn(draft)
+      stateRef.current = draft
+      _setState(draft)
+      
       // Fire-and-forget sync to Supabase after state is committed.
       if (syncFn && uidRef.current) {
         const uid = uidRef.current
         // Use a microtask so React has time to commit the new state.
-        Promise.resolve().then(() => syncFn(uid, next))
+        Promise.resolve().then(() => syncFn(uid, draft))
       }
       return out
     },
@@ -469,41 +373,20 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
   const actionsValue = React.useMemo<StoreActionsValue>(
     () => ({
       completeOnboarding: async (profile, interested, primary) => {
-        let nextState!: AppState
-        mutate((d) => {
-          d.profile = profile
-          d.interested = interested
-          d.primary = primary
-          d.onboarded = true
-          for (const id of interested) ensureProgress(d, id)
-          ensureProgress(d, "general")
-          track("onboarding_complete", { primary, interested_count: interested.length })
-          nextState = d
-        })
-
-        let uid = uidRef.current
-        if (!uid) {
-          const {
-            data: { user },
-          } = await createClient().auth.getUser()
-          uid = user?.id ?? null
-        }
-
-        if (!uid) {
-          throw new Error("You must be signed in to complete onboarding.")
-        }
-
-        if (!nextState) {
-          throw new Error("Onboarding state was not saved. Please try again.")
-        }
-
-        try {
-          await syncOnboardingComplete(uid, nextState)
-        } catch (err) {
-          mutate((d) => {
-            d.onboarded = false
+        const nextState = mutate((d) => {
+            d.profile = profile
+            d.interested = interested
+            d.primary = primary
+            d.onboarded = true
+            for (const id of interested) ensureProgress(d, id)
+            ensureProgress(d, "general")
+            track("onboarding_complete", { primary, interested_count: interested.length })
+            return d
           })
-          throw err
+
+        const uid = uidRef.current
+        if (uid) {
+          await syncAll(uid, nextState)
         }
       },
 
@@ -539,20 +422,17 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       // already happened in the verify route / webhook via the service role —
       // clients can no longer write entitlement columns (DB trigger).
       activatePremium: (premiumUntil, source = "purchase") =>
-        mutate(
-          (d) => {
-            const next = normalizeEntitlement({
-              ...d,
-              premium: true,
-              premiumUntil,
-            })
-            d.premium = next.premium
-            d.premiumUntil = next.premiumUntil
-            d.entitlementSource = source
-            track("premium_upgrade", { premium_until: premiumUntil ?? null })
-          },
-          syncUserState,
-        ),
+        mutate((d) => {
+          const next = normalizeEntitlement({
+            ...d,
+            premium: true,
+            premiumUntil,
+          })
+          d.premium = next.premium
+          d.premiumUntil = next.premiumUntil
+          d.entitlementSource = source
+          track("premium_upgrade", { premium_until: premiumUntil ?? null })
+        }),
 
       updateProfile: (p) =>
         mutate(
@@ -586,7 +466,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
             let xpGained = correct * XP.correctFirst
             const newlyPassed = passed && !wasPassed
             if (newlyPassed) xpGained += XP.quizPass
-            awardXp(d, xpGained)
+            d.xp += xpGained
             xpGained += bumpStreak(d)
             void sectionId
             track("quiz_attempt", { company: companyId, chapter: chapterId, score, passed, newly_passed: newlyPassed })
@@ -627,7 +507,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
               d.daily[category] = true
               xpGained += XP.daily
             }
-            awardXp(d, xpGained)
+            d.xp += xpGained
             xpGained += bumpStreak(d)
             return { xpGained }
           },
@@ -643,7 +523,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
             const prog = ensureProgress(d, companyId)
             prog.mockScores.push(score)
             let xpGained = XP.mock
-            awardXp(d, xpGained)
+            d.xp += XP.mock
             xpGained += bumpStreak(d)
             track("mock_complete", { company: companyId, score })
             return { xpGained }
@@ -762,42 +642,46 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
       },
 
       signOut: async () => {
-        skipPersistRef.current = true
-        await createClient().auth.signOut()
+        // Set hydrated = false FIRST so the persist-to-localStorage effect
+        // (which guards on `if (!hydrated) return`) cannot re-write
+        // DEFAULT_STATE back into storage after removeItem.
+        setHydrated(false)
         setState(DEFAULT_STATE)
         setUserId(null)
         try {
           localStorage.removeItem(STORAGE_KEY)
-          localStorage.removeItem(LEGACY_STORAGE_KEY)
         } catch {
           /* ignore */
         }
+        await createClient().auth.signOut()
+        window.location.href = "/auth/login"
       },
 
       deleteAccount: async () => {
-        skipPersistRef.current = true
         // Server route erases the auth user + all rows with the service-role key.
         try {
           await fetch("/api/account/delete", { method: "POST" })
         } catch {
           /* network — still sign out and clear locally below */
         }
+        // Same guard as signOut: kill hydrated first so the persist effect
+        // cannot re-write DEFAULT_STATE back into localStorage.
+        setHydrated(false)
+        setState(DEFAULT_STATE)
+        setUserId(null)
+        try {
+          localStorage.removeItem(STORAGE_KEY)
+        } catch {
+          /* ignore */
+        }
         try {
           await createClient().auth.signOut()
         } catch {
           /* already signed out */
         }
-        setState(DEFAULT_STATE)
-        setUserId(null)
-        try {
-          localStorage.removeItem(STORAGE_KEY)
-          localStorage.removeItem(LEGACY_STORAGE_KEY)
-        } catch {
-          /* ignore */
-        }
       },
     }),
-    [mutate],
+    [mutate, setState],
   )
 
   // ── State context — re-renders whenever state/hydrated/userId change ──
@@ -805,6 +689,10 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     () => ({ state, hydrated, userId, userCreatedAt }),
     [state, hydrated, userId, userCreatedAt],
   )
+  
+  React.useLayoutEffect(() => {
+    snapshotRef.current = stateValue
+  }, [stateValue])
 
   const subscriptionValue = React.useMemo<StoreSubscriptionValue>(
     () => ({
@@ -818,7 +706,6 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
   )
 
   React.useEffect(() => {
-    snapshotRef.current = stateValue
     for (const listener of listenersRef.current) listener()
   }, [stateValue])
 

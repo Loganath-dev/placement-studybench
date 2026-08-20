@@ -36,12 +36,6 @@ const DRIVE_LABEL: Record<CompanyId, string> = {
   accenture: "Accenture cognitive drive",
   zoho: "Zoho coding round",
   cognizant: "Cognizant GenC drive",
-  capgemini: "Capgemini pseudocode drive",
-  epam: "EPAM coding assessment",
-  ibm: "IBM aptitude drive",
-  unisys: "Unisys assessment",
-  techmahindra: "Tech Mahindra assessment",
-  hcltech: "HCLTech assessment",
   general: "Core Prep diagnostic",
 }
 
@@ -75,8 +69,6 @@ function driveDetail(companyId: CompanyId): string {
   if (companyId === "zoho") return "Coding-heavy simulation with debugging and DSA review."
   if (companyId === "accenture") return "Cognitive, technical and communication readiness check."
   if (companyId === "wipro") return "Aptitude, verbal, essay-readiness and coding practice."
-  if (companyId === "capgemini") return "Pseudocode, written-English and game-based aptitude readiness check."
-  if (companyId === "epam") return "Programming-fundamentals and live coding readiness check."
   if (companyId === "general") return "Foundation checkpoint across aptitude, coding and CS basics."
   return "Company-pattern aptitude, coding and interview-readiness checkpoint."
 }
@@ -126,7 +118,7 @@ export function buildPlacementDeadlines({
         : "3 days left to revise core basics",
       detail: nextLearning
         ? nextLearning.chapterTitle
-        : "Use the revision sheet and chapter practice to keep momentum.",
+        : "Use chapter practice and saved mistakes to keep momentum.",
       date: learningDate,
       href: nextLearning?.href ?? `/learn/${primary}`,
       priority: priorityFor(learningDate, today),

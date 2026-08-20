@@ -18,10 +18,6 @@ import {
   canAccessLearningSection,
   premiumPriceLabel,
 } from "@/lib/access"
-import { codingProblemsForCompany } from "@/lib/data/coding-problems"
-import { interviewForCompany } from "@/lib/data/interview"
-import { mocksForCompany } from "@/lib/data/mocks"
-import { pyqsForCompany } from "@/lib/data/pyqs"
 import {
   computePRI,
   EMPTY_PROGRESS,
@@ -56,19 +52,6 @@ export default function CompanyTrackPage() {
   const sections = getSections(companyId)
   const isPrimary = state.primary === companyId
   const next = findNextChapter(sections, progress)
-  const totalChapters = sections.reduce((sum, section) => sum + section.chapters.length, 0)
-  const totalLessons = sections.reduce(
-    (sum, section) => sum + section.chapters.reduce((n, chapter) => n + chapter.lessons.length, 0),
-    0,
-  )
-  const quizQuestionCount = sections.reduce(
-    (sum, section) => sum + section.chapters.reduce((n, chapter) => n + chapter.quiz.length, 0),
-    0,
-  )
-  const pyqCount = pyqsForCompany(companyId).length
-  const mockCount = mocksForCompany(companyId).length
-  const interviewCount = interviewForCompany(companyId).length
-  const codingCount = codingProblemsForCompany(companyId).length
   const mockLocked = !canAccessMockCompany(companyId, state.premium)
 
   return (
@@ -117,16 +100,6 @@ export default function CompanyTrackPage() {
         next={next}
         premium={state.premium}
         mockLocked={mockLocked}
-      />
-
-      <TrackDepthPanel
-        lessons={totalLessons}
-        chapters={totalChapters}
-        quizQuestions={quizQuestionCount}
-        pyqs={pyqCount}
-        mocks={mockCount}
-        interviews={interviewCount}
-        coding={codingCount}
       />
 
       <div className="grid gap-3 sm:grid-cols-2">
@@ -282,45 +255,6 @@ function TrackActionPanel({
           </Link>
         ))}
       </div>
-    </section>
-  )
-}
-
-function TrackDepthPanel({
-  lessons,
-  chapters,
-  quizQuestions,
-  pyqs,
-  mocks,
-  interviews,
-  coding,
-}: {
-  lessons: number
-  chapters: number
-  quizQuestions: number
-  pyqs: number
-  mocks: number
-  interviews: number
-  coding: number
-}) {
-  const stats = [
-    { label: "Chapters", value: chapters },
-    { label: "Lessons", value: lessons },
-    { label: "Chapter questions", value: quizQuestions },
-    { label: "PYQs", value: pyqs },
-    { label: "Mocks", value: mocks },
-    { label: "Interview prompts", value: interviews },
-    { label: "Coding problems", value: coding },
-  ]
-
-  return (
-    <section className="grid gap-2 sm:grid-cols-2 lg:grid-cols-7">
-      {stats.map((stat) => (
-        <div key={stat.label} className="rounded-xl border border-border bg-muted/30 p-3">
-          <p className="font-heading text-xl font-bold tabular-nums">{stat.value}</p>
-          <p className="mt-0.5 text-xs text-muted-foreground">{stat.label}</p>
-        </div>
-      ))}
     </section>
   )
 }

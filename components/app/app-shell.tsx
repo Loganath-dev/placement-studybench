@@ -5,7 +5,6 @@ import * as React from "react"
 import { AppSidebar, AppTopbar } from "@/components/app/nav"
 import { SyncErrorBanner } from "@/components/app/sync-error-banner"
 import { StudyTimer } from "@/components/app/study-timer"
-import { OnboardingModal } from "@/components/app/onboarding-modal"
 import { useStoreSelector } from "@/lib/store"
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -15,8 +14,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter()
 
   React.useEffect(() => {
-    // Wait until Supabase hydration finishes (`userId` set) so `onboarded`
-    // reflects DB truth — not a stale localStorage entry from sign-out.
+    // Only redirect once we are confident the authoritative Supabase load has
+    // run. When `userId` is set, the store's hydrate() has finished its remote
+    // fetch — so `onboarded` reflects the DB truth, not a stale cache.
+    // Without the `userId` check, a stale localStorage entry with
+    // onboarded=false (written during sign-out) would redirect returning users
+    // to /onboarding before Supabase could correct the value.
     if (hydrated && !onboarded && userId) router.replace("/onboarding")
   }, [hydrated, onboarded, userId, router])
 
@@ -55,7 +58,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </main>
       </div>
       <StudyTimer />
-      <OnboardingModal />
     </div>
   )
 }

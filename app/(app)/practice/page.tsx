@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
@@ -7,7 +7,6 @@ import { Icon } from "@/components/app/icon"
 import { PageHeader } from "@/components/app/page-header"
 import { CompanyAvatar } from "@/components/app/ui-bits"
 import { CompanyPicker } from "@/components/app/company-picker"
-import { ServedQuiz } from "@/components/app/served-quiz"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -80,8 +79,6 @@ export default function PracticePage() {
           setFaOnly(false)
         }}
       />
-
-      <ServedQuiz section={section} company={company} />
 
       {c.eligibility ? (
         <Card>

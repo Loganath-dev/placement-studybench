@@ -36,7 +36,7 @@ export default function ReadinessPage() {
       <PageHeader
         eyebrow="Placement signal"
         title="Readiness"
-        description="A practical view of your progress across the companies you are preparing for."
+        description="An honest score for your preparation with deeper company-wise analysis."
       />
 
       <Card className="overflow-hidden">
@@ -205,4 +205,5 @@ export default function ReadinessPage() {
     </div>
   )
 }
+
 

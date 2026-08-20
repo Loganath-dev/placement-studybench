@@ -19,7 +19,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "next/server": ["./next/server.ts"]
     }
   },
   "include": [
@@ -31,5 +32,5 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "playwright.config.ts", "tests/**/*", "**/*.test.ts", "placement-preparation-app/**/*"]
+  "exclude": ["node_modules"]
 }

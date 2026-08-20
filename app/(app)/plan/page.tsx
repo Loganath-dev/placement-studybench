@@ -1,8 +1,6 @@
 "use client"
 
-import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Icon } from "@/components/app/icon"
 import { PageHeader } from "@/components/app/page-header"
@@ -22,13 +20,6 @@ export default function PlanPage() {
         eyebrow="Weekly strategy"
         title="Placement Plan"
         description="Follow a structured weekly routine for aptitude, coding, CS core, mocks and interview readiness."
-        actions={
-          <Button asChild variant="outline">
-            <Link href="/revision">
-              Revision sheets <Icon name="ArrowRight" className="size-4" />
-            </Link>
-          </Button>
-        }
       />
 
       <DeadlineBoard variant="calendar" />

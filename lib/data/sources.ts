@@ -18,6 +18,14 @@ export const SOURCES: Record<string, ContentSource> = {
     kind: "official",
     note: "Test structure, sections and eligibility taken from the recruiter's official careers page; verify each drive cycle.",
   },
+  "tcs-careers": {
+    id: "tcs-careers",
+    title: "Official recruiter careers page",
+    publisher: "Tata Consultancy Services",
+    url: "https://www.tcs.com/careers",
+    kind: "official",
+    note: "Company research prompts and employer-brand references taken from the recruiter's official careers pages.",
+  },
   "infosys-careers": {
     id: "infosys-careers",
     title: "Official recruiter careers / assessment page",
@@ -58,54 +66,7 @@ export const SOURCES: Record<string, ContentSource> = {
     kind: "official",
     note: "Graduate hiring eligibility and rounds from the recruiter's official careers page.",
   },
-  "capgemini-careers": {
-    id: "capgemini-careers",
-    title: "Official recruiter careers page",
-    publisher: "Capgemini",
-    url: "https://www.capgemini.com/in-en/careers/",
-    kind: "official",
-    note: "Pattern and eligibility from the recruiter's official careers page.",
-  },
-  "epam-careers": {
-    id: "epam-careers",
-    title: "Official recruiter careers page",
-    publisher: "EPAM Systems",
-    url: "https://careers.epam.com/",
-    kind: "official",
-    note: "Pattern and eligibility from the recruiter's official careers page.",
-  },
-  "ibm-careers": {
-    id: "ibm-careers",
-    title: "Official recruiter careers page",
-    publisher: "IBM",
-    url: "https://www.ibm.com/careers",
-    kind: "official",
-    note: "Pattern and eligibility from the recruiter's official careers page.",
-  },
-  "unisys-careers": {
-    id: "unisys-careers",
-    title: "Official recruiter careers page",
-    publisher: "Unisys",
-    url: "https://www.unisys.com/careers/",
-    kind: "official",
-    note: "Pattern and eligibility from the recruiter's official careers page.",
-  },
-  "techmahindra-careers": {
-    id: "techmahindra-careers",
-    title: "Official recruiter careers page",
-    publisher: "Tech Mahindra",
-    url: "https://careers.techmahindra.com/",
-    kind: "official",
-    note: "Pattern and eligibility from the recruiter's official careers page.",
-  },
-  "hcltech-careers": {
-    id: "hcltech-careers",
-    title: "Official recruiter careers page",
-    publisher: "HCLTech",
-    url: "https://www.hcltech.com/careers",
-    kind: "official",
-    note: "Pattern and eligibility from the recruiter's official careers page.",
-  },
+
   "rs-aggarwal-quant": {
     id: "rs-aggarwal-quant",
     title: "Quantitative aptitude - standard concepts",
@@ -145,6 +106,7 @@ export const SOURCES: Record<string, ContentSource> = {
     id: "careerride-yt",
     title: "Aptitude & placement prep - pattern references (video)",
     publisher: "StudyBench curriculum",
+    url: "https://www.careerride.com/video-search.aspx?vCategoryId=13&vSubCategoryId=188",
     kind: "youtube",
     note: "Used to validate common patterns and coverage; no transcripts or third-party text copied.",
   },
@@ -199,7 +161,5 @@ export const SOURCES: Record<string, ContentSource> = {
 export function sourceById(id?: string): ContentSource | undefined {
   return id ? SOURCES[id] : undefined
 }
-
-
 
 

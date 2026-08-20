@@ -26,26 +26,31 @@ export default function Image() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+          {/* Brand new StudyBench geometric S logo badge */}
           <div
             style={{
               width: 72,
               height: 72,
-              borderRadius: 18,
-              background: "#EFF6FF",
+              borderRadius: 16,
+              background: "linear-gradient(135deg, #4F46E5 0%, #2563EB 100%)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               position: "relative",
             }}
           >
-            <div style={{ position: "absolute", left: 13, top: 13, width: 46, height: 46, borderRadius: 14, background: "#FFFFFF" }} />
-            <div style={{ position: "absolute", left: 21, top: 39, width: 25, height: 6, borderRadius: 3, background: "#0F172A" }} />
-            <div style={{ position: "absolute", left: 21, top: 30, width: 21, height: 6, borderRadius: 3, background: "#2563EB" }} />
-            <div style={{ position: "absolute", left: 21, top: 20, width: 31, height: 6, borderRadius: 3, background: "#F59E0B" }} />
-            <div style={{ position: "absolute", left: 36, top: 46, width: 26, height: 6, borderRadius: 3, background: "#0F172A", transform: "rotate(-45deg)", transformOrigin: "left center" }} />
-            <div style={{ position: "absolute", left: 50, top: 34, width: 12, height: 6, borderRadius: 3, background: "#0F172A" }} />
-            <div style={{ position: "absolute", left: 56, top: 34, width: 6, height: 12, borderRadius: 3, background: "#0F172A" }} />
-            <div style={{ position: "absolute", left: 51, top: 17, width: 7, height: 7, borderRadius: 4, background: "#22C55E" }} />
+            {/* Top bar of S */}
+            <div style={{ position: "absolute", left: 20, top: 16, width: 32, height: 7, borderRadius: 3, background: "white" }} />
+            {/* Left vertical of S top half */}
+            <div style={{ position: "absolute", left: 20, top: 16, width: 7, height: 20, borderRadius: 3, background: "white" }} />
+            {/* Middle bar of S */}
+            <div style={{ position: "absolute", left: 20, top: 32, width: 32, height: 7, borderRadius: 3, background: "white" }} />
+            {/* Right vertical of S bottom half */}
+            <div style={{ position: "absolute", left: 45, top: 32, width: 7, height: 20, borderRadius: 3, background: "white" }} />
+            {/* Bottom bar of S */}
+            <div style={{ position: "absolute", left: 20, top: 49, width: 32, height: 7, borderRadius: 3, background: "white" }} />
+            {/* Bench underline */}
+            <div style={{ position: "absolute", left: 23, bottom: 6, width: 26, height: 3, borderRadius: 1.5, background: "rgba(255,255,255,0.45)" }} />
           </div>
           <div style={{ fontSize: 38, fontWeight: 800 }}>{SITE_NAME}</div>
         </div>

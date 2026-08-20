@@ -27,7 +27,13 @@ export default function MistakesPage() {
   const { state, clearMistake, clearMistakes, reviewMistake } = useStore()
   const [mode, setMode] = React.useState<Mode>("idle")
   const mistakes = React.useMemo(() => state.mistakes ?? [], [state.mistakes])
-  const [now] = React.useState(() => Date.now())
+
+  // Recompute "now" periodically so due labels update, but avoid Date.now() during render
+  const [now, setNow] = React.useState(Date.now)
+  React.useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 60_000)
+    return () => clearInterval(id)
+  }, [])
   const dueCards = React.useMemo(() => dueForReview(mistakes, now), [mistakes, now])
   const mastery = masteryPercent(mistakes)
 

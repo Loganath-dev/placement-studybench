@@ -33,7 +33,7 @@ export const CODING_PROBLEMS: CodingProblem[] = [
     inputFormat: "A single integer n.",
     outputFormat: "Print one integer: abs(evenDigitSum - oddDigitSum).",
     constraints: ["0 <= n <= 10^9"],
-    starterCode: "function solve(n) {\n  // return the stability score\n}\n",
+    solution: "function solve(n) {\n  // return the stability score\n}\n",
     testCases: [
       { input: "27451", output: "8" },
       { input: "808", output: "16" },
@@ -55,7 +55,7 @@ export const CODING_PROBLEMS: CodingProblem[] = [
     inputFormat: "One lowercase string s.",
     outputFormat: "Print the compressed string.",
     constraints: ["1 <= |s| <= 10^5", "s contains lowercase English letters"],
-    starterCode: "function solve(s) {\n  // return compressed representation\n}\n",
+    solution: "function solve(s) {\n  // return compressed representation\n}\n",
     testCases: [
       { input: "aaabbc", output: "a3b2c1" },
       { input: "abcd", output: "a1b1c1d1" },
@@ -77,7 +77,7 @@ export const CODING_PROBLEMS: CodingProblem[] = [
     inputFormat: "One line of text.",
     outputFormat: "Print the number of words.",
     constraints: ["0 <= line length <= 1000"],
-    starterCode: "function solve(line) {\n  // return word count\n}\n",
+    solution: "function solve(line) {\n  // return word count\n}\n",
     testCases: [
       { input: "I am ready for placement", output: "5" },
       { input: "   clear   communication   matters  ", output: "3" },
@@ -99,7 +99,7 @@ export const CODING_PROBLEMS: CodingProblem[] = [
     inputFormat: "One integer status code.",
     outputFormat: "Print the matching status bucket.",
     constraints: ["0 <= code <= 999"],
-    starterCode: "function solve(code) {\n  // return status bucket\n}\n",
+    solution: "function solve(code) {\n  // return status bucket\n}\n",
     testCases: [
       { input: "200", output: "success" },
       { input: "404", output: "client-error" },
@@ -121,7 +121,7 @@ export const CODING_PROBLEMS: CodingProblem[] = [
     inputFormat: "First line n. Second line n integers.",
     outputFormat: "Print the sum of all positive numbers.",
     constraints: ["1 <= n <= 10^5", "-10^6 <= ai <= 10^6"],
-    starterCode: "function solve(arr) {\n  let sum = 0\n  // add only positive values\n}\n",
+    solution: "function solve(arr) {\n  let sum = 0\n  // add only positive values\n}\n",
     testCases: [
       { input: "5\n1 -2 3 0 4", output: "8" },
       { input: "3\n-5 -1 -2", output: "0" },
@@ -143,7 +143,7 @@ export const CODING_PROBLEMS: CodingProblem[] = [
     inputFormat: "First line r c. Next r lines contain c integers each.",
     outputFormat: "Print the border sum.",
     constraints: ["1 <= r, c <= 100", "-10^4 <= value <= 10^4"],
-    starterCode: "function solve(matrix) {\n  // return border sum\n}\n",
+    solution: "function solve(matrix) {\n  // return border sum\n}\n",
     testCases: [
       { input: "3 3\n1 2 3\n4 5 6\n7 8 9", output: "40" },
       { input: "1 4\n2 3 4 5", output: "14" },
@@ -166,7 +166,7 @@ export const CODING_PROBLEMS: CodingProblem[] = [
     inputFormat: "One string s on a single line.",
     outputFormat: "Print balanced or not balanced.",
     constraints: ["1 <= |s| <= 10^5", "s contains only (, ), {, }, [, ]"],
-    starterCode: "function solve(s) {\n  // use a stack to validate brackets\n}\n",
+    solution: "function solve(s) {\n  // use a stack to validate brackets\n}\n",
     testCases: [
       { input: "()[]{}", output: "balanced" },
       { input: "([)]", output: "not balanced" },
@@ -190,7 +190,7 @@ export const CODING_PROBLEMS: CodingProblem[] = [
     inputFormat: "First line n k. Second line n integers.",
     outputFormat: "Print the maximum of each window, separated by spaces.",
     constraints: ["1 <= k <= n <= 10^5", "-10^9 <= ai <= 10^9"],
-    starterCode: "function solve(arr, k) {\n  // return array of window maximums\n}\n",
+    solution: "function solve(arr, k) {\n  // return array of window maximums\n}\n",
     testCases: [
       { input: "8 3\n1 3 -1 -3 5 3 6 7", output: "3 3 5 5 6 7" },
       { input: "4 2\n4 3 2 1", output: "4 3 2" },
@@ -214,7 +214,7 @@ export const CODING_PROBLEMS: CodingProblem[] = [
     inputFormat: "A single integer n.",
     outputFormat: "Print palindrome or not palindrome.",
     constraints: ["-10^9 <= n <= 10^9"],
-    starterCode: "function solve(n) {\n  // determine if n is a palindrome numerically\n}\n",
+    solution: "function solve(n) {\n  // determine if n is a palindrome numerically\n}\n",
     testCases: [
       { input: "121", output: "palindrome" },
       { input: "-121", output: "not palindrome" },
@@ -237,7 +237,7 @@ export const CODING_PROBLEMS: CodingProblem[] = [
     inputFormat: "One lowercase string s.",
     outputFormat: "Print one character or -1.",
     constraints: ["1 <= |s| <= 10^5"],
-    starterCode: "function solve(s) {\n  // return first non-repeating character\n}\n",
+    solution: "function solve(s) {\n  // return first non-repeating character\n}\n",
     testCases: [
       { input: "placement", output: "p" },
       { input: "aabbc", output: "c" },
@@ -259,7 +259,7 @@ export const CODING_PROBLEMS: CodingProblem[] = [
     inputFormat: "A single integer n.",
     outputFormat: "Print one integer between 0 and 9.",
     constraints: ["0 <= n <= 10^9"],
-    starterCode: "function solve(n) {\n  // return the single-digit result\n}\n",
+    solution: "function solve(n) {\n  // return the single-digit result\n}\n",
     testCases: [
       { input: "9875", output: "2" },
       { input: "18", output: "9" },
@@ -281,7 +281,7 @@ export const CODING_PROBLEMS: CodingProblem[] = [
     inputFormat: "A line containing words separated by single spaces.",
     outputFormat: "The words in reverse order, separated by single spaces.",
     constraints: ["1 <= number of words <= 10^4"],
-    starterCode: "function solve(line) {\n  // return the words in reverse order\n}\n",
+    solution: "function solve(line) {\n  // return the words in reverse order\n}\n",
     testCases: [
       { input: "hello world foo", output: "foo world hello" },
       { input: "zoho", output: "zoho" },
@@ -303,7 +303,7 @@ export const CODING_PROBLEMS: CodingProblem[] = [
     inputFormat: "One lowercase string s.",
     outputFormat: "Print one integer: the count of distinct characters.",
     constraints: ["1 <= |s| <= 10^5", "s contains lowercase English letters"],
-    starterCode: "function solve(s) {\n  // return the number of distinct characters\n}\n",
+    solution: "function solve(s) {\n  // return the number of distinct characters\n}\n",
     testCases: [
       { input: "banana", output: "3" },
       { input: "abcabc", output: "3" },
@@ -325,7 +325,7 @@ export const CODING_PROBLEMS: CodingProblem[] = [
     inputFormat: "A single integer n.",
     outputFormat: "Print YES or NO.",
     constraints: ["1 <= n <= 10^9"],
-    starterCode: "function solve(n) {\n  // return \"YES\" or \"NO\"\n}\n",
+    solution: "function solve(n) {\n  // return \"YES\" or \"NO\"\n}\n",
     testCases: [
       { input: "7", output: "YES" },
       { input: "1", output: "NO" },
@@ -347,7 +347,7 @@ export const CODING_PROBLEMS: CodingProblem[] = [
     inputFormat: "A single integer n.",
     outputFormat: "Print one integer: n!.",
     constraints: ["0 <= n <= 12"],
-    starterCode: "function solve(n) {\n  // return n!\n}\n",
+    solution: "function solve(n) {\n  // return n!\n}\n",
     testCases: [
       { input: "5", output: "120" },
       { input: "0", output: "1" },
@@ -369,7 +369,7 @@ type CodingTemplate = {
   inputFormat: string
   outputFormat: string
   constraints: string[]
-  starterCode: string
+  solution: string
   testCases: CodingProblem["testCases"]
   editorial: string
   estimatedMinutes: number
@@ -382,12 +382,6 @@ const COMPANY_FOCUS: Record<CompanyId, { label: string; sourceId: string; count:
   accenture: { label: "cognitive coding", sourceId: "studybench-curriculum", count: 90 },
   zoho: { label: "machine round", sourceId: "studybench-curriculum", count: 174 },
   cognizant: { label: "GenC automata", sourceId: "studybench-curriculum", count: 96 },
-  capgemini: { label: "pseudocode", sourceId: "studybench-curriculum", count: 90 },
-  epam: { label: "programming fundamentals", sourceId: "studybench-curriculum", count: 102 },
-  ibm: { label: "problem solving", sourceId: "studybench-curriculum", count: 90 },
-  unisys: { label: "technical fundamentals", sourceId: "studybench-curriculum", count: 84 },
-  techmahindra: { label: "telecom-domain", sourceId: "studybench-curriculum", count: 84 },
-  hcltech: { label: "core IT engineering", sourceId: "studybench-curriculum", count: 84 },
   general: { label: "core", sourceId: "studybench-curriculum", count: 72 },
 }
 
@@ -401,7 +395,7 @@ const CODING_TEMPLATES: CodingTemplate[] = [
     inputFormat: "First line n. Second line n integers.",
     outputFormat: "Print one integer: the maximum pair sum.",
     constraints: ["2 <= n <= 10^5", "-10^6 <= ai <= 10^6"],
-    starterCode: "function solve(arr) {\n  // return max pair sum\n}\n",
+    solution: "function solve(arr) {\n  // return max pair sum\n}\n",
     testCases: [
       { input: "5\n1 8 3 2 10", output: "18" },
       { input: "4\n-5 -1 -2 -8", output: "-3" },
@@ -420,7 +414,7 @@ const CODING_TEMPLATES: CodingTemplate[] = [
     inputFormat: "One lowercase string s.",
     outputFormat: "Print yes or no.",
     constraints: ["1 <= |s| <= 10^5", "s contains lowercase English letters"],
-    starterCode: "function solve(s) {\n  // return yes/no\n}\n",
+    solution: "function solve(s) {\n  // return yes/no\n}\n",
     testCases: [
       { input: "code", output: "yes" },
       { input: "placement", output: "no" },
@@ -439,7 +433,7 @@ const CODING_TEMPLATES: CodingTemplate[] = [
     inputFormat: "First line n k. Second line n integers.",
     outputFormat: "Print the count of prefixes with sum k.",
     constraints: ["1 <= n <= 10^5", "-10^4 <= ai, k <= 10^6"],
-    starterCode: "function solve(arr, k) {\n  // count matching prefixes\n}\n",
+    solution: "function solve(arr, k) {\n  // count matching prefixes\n}\n",
     testCases: [
       { input: "5 6\n1 2 3 0 4", output: "2" },
       { input: "4 3\n3 -1 1 0", output: "3" },
@@ -458,7 +452,7 @@ const CODING_TEMPLATES: CodingTemplate[] = [
     inputFormat: "First line n k. Second line n integers.",
     outputFormat: "Print n integers after rotation.",
     constraints: ["1 <= n <= 10^5", "0 <= k <= 10^9"],
-    starterCode: "function solve(arr, k) {\n  // return rotated array\n}\n",
+    solution: "function solve(arr, k) {\n  // return rotated array\n}\n",
     testCases: [
       { input: "5 2\n1 2 3 4 5", output: "4 5 1 2 3" },
       { input: "4 4\n7 8 9 10", output: "7 8 9 10" },
@@ -477,7 +471,7 @@ const CODING_TEMPLATES: CodingTemplate[] = [
     inputFormat: "One line of text.",
     outputFormat: "Print one integer.",
     constraints: ["0 <= line length <= 1000"],
-    starterCode: "function solve(line) {\n  // return longest word length\n}\n",
+    solution: "function solve(line) {\n  // return longest word length\n}\n",
     testCases: [
       { input: "clear coding wins", output: "6" },
       { input: "   a   strong  resume ", output: "6" },
@@ -496,7 +490,7 @@ const CODING_TEMPLATES: CodingTemplate[] = [
     inputFormat: "First line n. Next n lines contain n integers each.",
     outputFormat: "Print one integer.",
     constraints: ["1 <= n <= 100", "-10^4 <= value <= 10^4"],
-    starterCode: "function solve(matrix) {\n  // return diagonal difference\n}\n",
+    solution: "function solve(matrix) {\n  // return diagonal difference\n}\n",
     testCases: [
       { input: "3\n1 2 3\n4 5 6\n7 8 9", output: "0" },
       { input: "2\n1 2\n3 4", output: "0" },
@@ -515,7 +509,7 @@ const CODING_TEMPLATES: CodingTemplate[] = [
     inputFormat: "First line n. Second line n integers.",
     outputFormat: "Print one integer.",
     constraints: ["1 <= n <= 10^5", "-10^9 <= ai <= 10^9"],
-    starterCode: "function solve(arr) {\n  // return first missing positive\n}\n",
+    solution: "function solve(arr) {\n  // return first missing positive\n}\n",
     testCases: [
       { input: "5\n1 2 0 4 5", output: "3" },
       { input: "4\n-1 -2 1 2", output: "3" },
@@ -534,7 +528,7 @@ const CODING_TEMPLATES: CodingTemplate[] = [
     inputFormat: "First line n. Second line n integers.",
     outputFormat: "Print the sum.",
     constraints: ["1 <= n <= 10^5", "-10^6 <= ai <= 10^6"],
-    starterCode: "function solve(arr) {\n  let sum = 0\n  // fix the loop bounds\n}\n",
+    solution: "function solve(arr) {\n  let sum = 0\n  // fix the loop bounds\n}\n",
     testCases: [
       { input: "4\n1 2 3 4", output: "10" },
       { input: "3\n-1 5 6", output: "10" },
@@ -553,7 +547,7 @@ const CODING_TEMPLATES: CodingTemplate[] = [
     inputFormat: "Two lines, one string per line.",
     outputFormat: "Print yes or no.",
     constraints: ["1 <= |s|, |t| <= 10^5"],
-    starterCode: "function solve(a, b) {\n  // compare character counts\n}\n",
+    solution: "function solve(a, b) {\n  // compare character counts\n}\n",
     testCases: [
       { input: "listen\nsilent", output: "yes" },
       { input: "hello\nworld", output: "no" },
@@ -572,7 +566,7 @@ const CODING_TEMPLATES: CodingTemplate[] = [
     inputFormat: "Four integers a b c d.",
     outputFormat: "Print yes or no.",
     constraints: ["0 <= a <= b <= 10^9", "0 <= c <= d <= 10^9"],
-    starterCode: "function solve(a, b, c, d) {\n  // return overlap decision\n}\n",
+    solution: "function solve(a, b, c, d) {\n  // return overlap decision\n}\n",
     testCases: [
       { input: "1 5 4 8", output: "yes" },
       { input: "1 3 4 6", output: "no" },
@@ -592,7 +586,7 @@ const CODING_TEMPLATES: CodingTemplate[] = [
     inputFormat: "First line n. Second line n integers.",
     outputFormat: "Print one integer: the length of the longest consecutive sequence.",
     constraints: ["1 <= n <= 10^5", "-10^9 <= ai <= 10^9"],
-    starterCode: "function solve(arr) {\n  // return the length of the longest consecutive sequence\n}\n",
+    solution: "function solve(arr) {\n  // return the length of the longest consecutive sequence\n}\n",
     testCases: [
       { input: "6\n100 4 200 1 3 2", output: "4" },
       { input: "5\n0 3 7 2 5", output: "1" },
@@ -620,7 +614,7 @@ function generatedCodingProblem(companyId: CompanyId, index: number): CodingProb
     inputFormat: template.inputFormat,
     outputFormat: template.outputFormat,
     constraints: template.constraints,
-    starterCode: template.starterCode,
+    solution: template.solution,
     testCases: template.testCases,
     editorial: template.editorial,
     estimatedMinutes: companyId === "zoho" ? template.estimatedMinutes + 6 : template.estimatedMinutes,

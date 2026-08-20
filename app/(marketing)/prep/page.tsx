@@ -63,6 +63,9 @@ export default function PrepIndexPage() {
                   {c.sector}
                 </span>
                 <p className="text-sm leading-relaxed text-muted-foreground">{c.blurb}</p>
+                <span className="inline-flex items-center gap-1 text-sm font-medium text-primary">
+                  Start {c.short} prep free <Icon name="ArrowRight" className="size-3.5" />
+                </span>
               </CardContent>
             </Card>
           </Link>

@@ -29,6 +29,8 @@ export default function MockPage() {
   const { state, submitMock, recordMistake } = useStore()
   const searchParams = useSearchParams()
   const queryCompany = companyFromParam(searchParams.get("company"))
+  const journey = searchParams.get("journey")
+  const isTcsJourney = journey === "tcs-nqt"
   const [selectedCompany, setSelectedCompany] = React.useState<CompanyId | null>(null)
   const [mockIndex, setMockIndex] = React.useState(0)
   const [playing, setPlaying] = React.useState(false)
@@ -39,18 +41,30 @@ export default function MockPage() {
 
   const c = getCompany(company)
   const mocks = React.useMemo(() => mocksForCompany(company), [company])
-  const locked = !canAccessMockCompany(company, state.premium)
-  const visibleMocks = React.useMemo(
-    () => visibleMocksForPlan(mocks, company, state.premium),
-    [company, mocks, state.premium],
+  const journeyMocks = React.useMemo(
+    () => (isTcsJourney && company === "tcs" ? mocks.slice(0, 2) : mocks),
+    [company, isTcsJourney, mocks],
   )
-  const mock = visibleMocks[mockIndex] ?? visibleMocks[0]
+  const selectedMock = journeyMocks[mockIndex] ?? journeyMocks[0]
+  const locked =
+    isTcsJourney && company === "tcs"
+      ? !state.premium && mockIndex > 0
+      : !canAccessMockCompany(company, state.premium)
+  const visibleMocks = React.useMemo(() => {
+    if (isTcsJourney && company === "tcs") {
+      return state.premium ? journeyMocks : journeyMocks.slice(0, 1)
+    }
+    return visibleMocksForPlan(mocks, company, state.premium)
+  }, [company, isTcsJourney, journeyMocks, mocks, state.premium])
+  const mock = locked ? selectedMock : visibleMocks[mockIndex] ?? visibleMocks[0] ?? selectedMock
   const progress = state.progress[company] ?? EMPTY_PROGRESS
   const questions = React.useMemo(
     () => (!locked && mock ? buildMockQuestions(mock) : []),
     [locked, mock],
   )
-  const hiddenMockCount = locked ? mocks.length : Math.max(0, mocks.length - visibleMocks.length)
+  const hiddenMockCount = locked
+    ? Math.max(0, journeyMocks.length - visibleMocks.length)
+    : Math.max(0, journeyMocks.length - visibleMocks.length)
   const best = progress.mockScores.length ? Math.max(...progress.mockScores) : 0
   const timeLimitSec = mock
     ? mock.sections.reduce((sum, section) => sum + section.durationMinutes, 0) * 60
@@ -61,9 +75,13 @@ export default function MockPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Timed simulation"
-        title="Mock Tests"
-        description="Timed company-pattern mocks with section-wise scoring and pass targets."
+        eyebrow={isTcsJourney ? "Guided TCS route" : "Timed simulation"}
+        title={isTcsJourney ? "TCS NQT Mock Journey" : "Mock Tests"}
+        description={
+          isTcsJourney
+            ? "Start the first TCS simulation now, then continue into the next premium mock after you finish."
+            : "Timed company-pattern mocks with section-wise scoring and pass targets."
+        }
       />
 
       <CompanyPicker
@@ -77,6 +95,10 @@ export default function MockPage() {
           setWrongQuestions([])
         }}
       />
+
+      {isTcsJourney ? (
+        <JourneyBanner premium={state.premium} />
+      ) : null}
 
       {progress.mockScores.length > 0 ? (
         <div className="grid grid-cols-3 gap-3">
@@ -140,6 +162,16 @@ export default function MockPage() {
             analysis={lastAnalysis}
             wrongCount={wrongQuestions.length}
             onRetakeWrong={() => setRetakingWrong(true)}
+            onNextMock={
+              isTcsJourney && company === "tcs"
+                ? () => {
+                    setMockIndex(1)
+                    setLastAnalysis(null)
+                    setWrongQuestions([])
+                  }
+                : null
+            }
+            nextMockLabel={state.premium ? "Take another TCS mock" : "Take another mock test"}
           />
         ) : null}
         <Card>
@@ -165,15 +197,15 @@ export default function MockPage() {
                       : "bg-primary/10 text-primary",
                   )}
                 >
-                  {fullLength ? "Full-length simulation" : "Mini mock"}
+                  {fullLength ? "Full-length simulation" : "Practice simulation"}
                 </span>
               </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-5">
-            {visibleMocks.length > 1 ? (
+            {journeyMocks.length > 1 ? (
               <div className="flex flex-wrap gap-2">
-                {visibleMocks.map((m, i) => (
+                {journeyMocks.map((m, i) => (
                   <button
                     key={m.id}
                     type="button"
@@ -185,7 +217,7 @@ export default function MockPage() {
                         : "border-border hover:bg-muted/50",
                     )}
                   >
-                    Mock {i + 1}
+                    {i === 1 && isTcsJourney && !state.premium ? "Mock 2 - Premium" : `Mock ${i + 1}`}
                   </button>
                 ))}
               </div>
@@ -210,13 +242,26 @@ export default function MockPage() {
                   <span className="grid size-14 place-items-center rounded-2xl bg-primary/10 text-primary">
                     <Icon name="Lock" className="size-7" />
                   </span>
-                  <p className="font-medium">Premium mock</p>
+                  <p className="font-medium">
+                    {isTcsJourney ? "Join Premium to unlock TCS Mock Test 2" : "Premium mock"}
+                  </p>
                   <p className="max-w-sm text-sm text-muted-foreground">
-                    Upgrade to practise every company mock with full analytics.
+                    {isTcsJourney
+                      ? "You finished the first guided TCS test. Upgrade now to continue into the next mock and unlock the full company mock series."
+                      : "Upgrade to practise every company mock with full analytics."}
                   </p>
                   <Button asChild className="mt-1">
-                    <Link href="/settings">Go Premium - {premiumPriceLabel()}</Link>
+                    <Link href="/settings">
+                      {isTcsJourney ? "Join Premium and unlock it" : `Go Premium - ${premiumPriceLabel()}`}
+                    </Link>
                   </Button>
+                  {isTcsJourney ? (
+                    <Button variant="ghost" asChild>
+                      <Link href="/dashboard">
+                        Back to dashboard <Icon name="ChevronRight" className="size-4" />
+                      </Link>
+                    </Button>
+                  ) : null}
                 </>
               ) : (
                 <>
@@ -227,7 +272,7 @@ export default function MockPage() {
                   <p className="text-sm text-muted-foreground">
                     {fullLength
                       ? "Full-length pressure practice with section-wise review."
-                      : "Mini mock for warm-up practice before full-length attempts."}
+                      : "Full-length practice with section-wise review."}
                   </p>
                   <div className="grid w-full max-w-xl gap-2 text-left sm:grid-cols-3">
                     <PressureTip label="Before" value="No pause. Treat it like drive time." />
@@ -235,11 +280,14 @@ export default function MockPage() {
                     <PressureTip label="After" value="Review every wrong topic immediately." />
                   </div>
                   <Button className="mt-1" onClick={() => setPlaying(true)}>
-                    Start mock <Icon name="ArrowRight" className="size-4" />
+                    {isTcsJourney && mockIndex === 0 ? "Start TCS Mock Test 1" : "Start mock"}{" "}
+                    <Icon name="ArrowRight" className="size-4" />
                   </Button>
                   {!state.premium && hiddenMockCount > 0 ? (
                     <p className="max-w-sm text-xs text-muted-foreground">
-                      Upgrade for the complete mock series.
+                      {isTcsJourney
+                        ? "Finish this paper, then continue to the next mock with Premium."
+                        : "Upgrade for the complete mock series."}
                     </p>
                   ) : null}
                 </>
@@ -262,10 +310,14 @@ function MockAnalysisCard({
   analysis,
   wrongCount,
   onRetakeWrong,
+  onNextMock,
+  nextMockLabel,
 }: {
   analysis: MockAnalysis
   wrongCount: number
   onRetakeWrong: () => void
+  onNextMock?: (() => void) | null
+  nextMockLabel?: string
 }) {
   return (
     <Card className="border-primary/25 bg-primary/[0.04]">
@@ -286,6 +338,20 @@ function MockAnalysisCard({
         </Button>
       </CardHeader>
       <CardContent className="space-y-5">
+        {onNextMock ? (
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-background p-4">
+            <div>
+              <p className="font-heading text-base font-semibold">Want to take another mock test?</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Move straight into the next paper while this attempt is still fresh.
+              </p>
+            </div>
+            <Button onClick={onNextMock}>
+              {nextMockLabel ?? "Take another mock"} <Icon name="ArrowRight" className="size-4" />
+            </Button>
+          </div>
+        ) : null}
+
         <div className="grid gap-3 md:grid-cols-4">
           <AnalysisMetric label="Score" value={`${analysis.scorePct}%`} />
           <AnalysisMetric label="Cutoff" value={`${analysis.cutoff}%`} />
@@ -442,6 +508,75 @@ function MockAnalysisCard({
         </div>
       </CardContent>
     </Card>
+  )
+}
+
+function JourneyBanner({ premium }: { premium: boolean }) {
+  return (
+    <Card className="overflow-hidden border-primary/20 bg-[linear-gradient(135deg,oklch(0.98_0.02_95),oklch(0.95_0.03_80))]">
+      <CardContent className="grid gap-4 p-5 md:grid-cols-[1.1fr_.9fr] md:items-center">
+        <div>
+          <div className="inline-flex items-center gap-2 rounded-full bg-background/80 px-3 py-1 text-xs font-semibold tracking-[0.18em] text-primary uppercase ring-1 ring-primary/15">
+            <Icon name="Briefcase" className="size-3.5" /> TCS guided flow
+          </div>
+          <h2 className="mt-3 font-heading text-xl font-bold tracking-tight">
+            First test now. Second test unlocks right after this one.
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+            Complete Mock Test 1, review your performance, then continue to Mock Test 2.
+            {premium
+              ? " Premium is active, so the next paper is already open."
+              : " Premium unlocks the next paper and the complete TCS mock series."}
+          </p>
+        </div>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <JourneyStatus
+            title="Mock test 1"
+            detail="Available now"
+            icon="PlayCircle"
+            tone="ready"
+          />
+          <JourneyStatus
+            title="Mock test 2"
+            detail={premium ? "Unlocked" : "Join Premium"}
+            icon={premium ? "BadgeCheck" : "Lock"}
+            tone={premium ? "ready" : "locked"}
+          />
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+function JourneyStatus({
+  title,
+  detail,
+  icon,
+  tone,
+}: {
+  title: string
+  detail: string
+  icon: React.ComponentProps<typeof Icon>["name"]
+  tone: "ready" | "locked"
+}) {
+  return (
+    <div
+      className={cn(
+        "rounded-2xl border p-3",
+        tone === "ready" ? "border-primary/20 bg-background" : "border-amber-200 bg-amber-50/75",
+      )}
+    >
+      <span
+        className={cn(
+          "grid size-9 place-items-center rounded-xl",
+          tone === "ready" ? "bg-primary/10 text-primary" : "bg-amber-100 text-amber-800",
+        )}
+      >
+        <Icon name={icon} className="size-4" />
+      </span>
+      <p className="mt-3 font-medium">{title}</p>
+      <p className="text-xs text-muted-foreground">{detail}</p>
+    </div>
   )
 }
 

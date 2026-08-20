@@ -46,7 +46,7 @@ export const FAQS: FaqItem[] = [
     category: "Pricing",
     question: "Is StudyBench free? What does Premium include?",
     answer:
-      "StudyBench has a free tier that opens all 13 company tracks with Section 1, Chapter 1 plus sample practice. Premium costs Rs 249 per year and unlocks every section, every chapter, the full previous-year question bank, every mock test, the complete interview question bank with trainer guidance, and detailed analytics.",
+      "StudyBench has a free tier that opens every company track with starter chapters, sample practice and a mock baseline. Premium costs ₹249 for a lifetime and unlocks every section, every chapter, the full previous-year question bank, every mock test, the complete interview question bank with trainer guidance, and detailed analytics.",
   },
   {
     id: "seventy-percent-gate",
@@ -101,5 +101,3 @@ export function faqJsonLd(items: FaqItem[] = FAQS) {
     })),
   }
 }
-
-
